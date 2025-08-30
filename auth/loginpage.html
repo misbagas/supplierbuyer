@@ -1,0 +1,17 @@
+<form id="loginForm" method="POST" action="/login">
+    <input name="username" type="text" placeholder="Username" required>
+    <input name="password" type="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("error")) {
+        if (params.get("error") === "invalid") {
+            alert("Invalid username or password!");
+        } else if (params.get("error") === "usernotfound") {
+            alert("User not found!");
+        }
+    }
+});
+</script>

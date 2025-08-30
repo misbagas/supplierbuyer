@@ -1,0 +1,13 @@
+<form id="registerForm" method="POST" action="/register">
+    <input name="username" type="text" placeholder="Username" required>
+    <input name="password" type="password" placeholder="Password" required>
+    <button type="submit">Register</button>
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("error") && params.get("error") === "userexists") {
+        alert("Username already exists. Please choose another.");
+    }
+});
+</script>
