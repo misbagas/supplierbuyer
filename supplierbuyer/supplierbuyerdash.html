@@ -1,15 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - Upload Image</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>SupplierBuyer Dashboard</title>
+  <link rel="stylesheet" href="supplierbuyerdash.css">
 </head>
 <body>
-    <h1>Upload Image</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*" required>
-        <button type="submit">Upload</button>
-    </form>
+  <!-- 🔹 Navigation Bar -->
+  <div class="navbar">
+    <div class="logo">SupplierBuyer Admin</div>
+    <div class="nav-links">
+      <a href="/supplierbuyer/supplierbuyerdash.html">Dashboard</a>
+      <a href="/upload_product">Upload Product</a>
+      <a href="/view_products">View Products</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </div>
+      <!-- Actions -->
+<div class='btn-group'>
+    <a href='/delete_product?id=%d' class='btn delete'>Delete</a>
+    <a href='/edit_product?id=%d' class='btn edit'>Edit</a>
+</div>
+
+    </div>
+
+    <!-- More product cards inserted here by C++ -->
+  </div>
 </body>
 </html>
