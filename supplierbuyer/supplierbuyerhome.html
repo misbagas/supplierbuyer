@@ -3,9 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>All Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
-<body>
-    home
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 rounded-lg p-4">All Available Products</h1>
+        </header>
+
+        <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Products will be dynamically loaded here -->
+            <div id="loading" class="text-center col-span-full text-gray-500 text-lg">Loading products...</div>
+        </div>
+
+        <div id="error-message" class="hidden text-center col-span-full text-red-500 text-lg mt-8">
+            Failed to load products. Please try again later.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productsContainer = document.getElementById('products-container');
+            const loadingMessage = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+
+            // The URL for the backend endpoint that serves all products.
+            // This requires the C++ backend server to be running.
+            const productsApiUrl = '/api/products';
+
+            const fetchProducts = async () => {
+                try {
+                    const response = await fetch(productsApiUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const products = await response.json();
+
+                    loadingMessage.style.display = 'none';
+
+                    if (products.length === 0) {
+                        productsContainer.innerHTML = '<p class="text-center col-span-full text-gray-500 text-lg">No products found.</p>';
+                        return;
+                    }
+
+                    products.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'bg-white rounded-xl shadow-lg overflow-hidden transition-transform transform hover:scale-105';
+                        productCard.innerHTML = `
+                            <img src="${product.image}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/4b5563?text=No+Image';" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-2 truncate">${product.name}</h2>
+                                <p class="text-gray-600 mb-4 h-16 overflow-hidden">${product.description}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-2xl font-bold text-gray-900">$${parseFloat(product.price).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `;
+                        productsContainer.appendChild(productCard);
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    loadingMessage.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                }
+            };
+
+            fetchProducts();
+        });
+    </script>
 </body>
 </html>

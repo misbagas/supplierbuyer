@@ -32,28 +32,15 @@ body {
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 8px;
-    width: 220px;
     text-align: center;
-}
-
-.card img {
-    width: 200px;
-    height: auto;
-    border-radius: 4px;
-}
-
-.card {
     margin: 20px auto;
     max-width: 600px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
     background: #fafafa;
-    text-align: center;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .card img {
     max-width: 100%;
-    border-radius: 8px;
+    height: auto;
+    border-radius: 4px;
 }
