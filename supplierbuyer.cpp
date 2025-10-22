@@ -10,13 +10,47 @@
 #include <cstdlib>
 #include <vector>
 #include <thread>
-#include <mutex>
+#include <mutex> // Added by HEAD
 #include <chrono>
 #include <csignal>
 extern "C" {
     #include "civetweb.h"
 }
 #include "sqlite3.h"
+#include <unordered_map> // Added by HEAD
+#include <random> // Added by HEAD
+#include <map> // Added by HEAD
+#include <sstream> // ✅ ADDED: Required for JSON escaping
+#include <iomanip> // ✅ ADDED: Required for JSON escaping
+
+// ✅ ADDED: Helper function to safely escape a string for JSON
+std::string escapeJsonString(const std::string& input) {
+    if (input.empty()) {
+        return "";
+    }
+    std::ostringstream oss;
+    for (char c : input) {
+        switch (c) {
+            case '"':  oss << "\\\""; break;
+            case '\\': oss << "\\\\"; break;
+            case '\b': oss << "\\b";  break;
+            case '\f': oss << "\\f";  break;
+            case '\n': oss << "\\n";  break;
+            case '\r': oss << "\\r";  break;
+            case '\t': oss << "\\t";  break;
+            default:
+                if ('\x00' <= c && c <= '\x1f') {
+                    // Control characters must be escaped
+                    oss << "\\u" << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(c);
+                } else {
+                    oss << c;
+                }
+        }
+    }
+    return oss.str();
+}
+
+
 // Safe DB open helper: never crashes, just logs and returns nullptr
 sqlite3* safe_open(const char* path) {
     sqlite3* db = nullptr;
@@ -41,8 +75,7 @@ sqlite3* safe_open(const char* path) {
 #else
 #include <sys/stat.h>
 #endif
-#include <unordered_map>
-#include <random>
+
 std::unordered_map<std::string, std::string> sessions;
 std::mutex sessions_mutex;
 
@@ -273,7 +306,6 @@ int handle_admin(struct mg_connection *conn, void *cbdata) {
 
 // Global variables for SQLite connections (as used in the original code)
 // Global variables for SQLite connections
-#include <map>
 
 // Parse multipart/form-data and save uploaded file
 bool parseMultipart(struct mg_connection *conn,
@@ -571,7 +603,8 @@ mg_set_request_handler(ctx, "/submit_request", [](mg_connection *conn, void *) -
     return 303;
 }, nullptr);
 
-} // <-- Add this to close main()
+} // <-- This brace was misplaced, it should not close main() yet.
+  // It was closing the `if (ctx)` block, which I will continue adding handlers to.
 
 
 mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> int {
@@ -610,15 +643,15 @@ mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> 
         int product_id = sqlite3_column_int(stmt, 1);
         int id = sqlite3_column_int(stmt, 0);
 
-        char buf[2048];
-        snprintf(buf, sizeof(buf),
-            R"({"id":%d,"product_id":%d,"sender":"%s","receiver":"%s","message":"%s","created_at":"%s"})",
-            id, product_id,
-            sender ? sender : "",
-            receiver ? receiver : "",
-            message ? message : "",
-            created_at ? created_at : "");
-        json += buf;
+        // ✅ FIXED: Use ostringstream and escapeJsonString to build valid JSON
+        std::ostringstream oss;
+        oss << R"({"id":)" << id
+            << R"(,"product_id":)" << product_id
+            << R"(,"sender":")" << escapeJsonString(sender ? sender : "") << R"(")"
+            << R"(,"receiver":")" << escapeJsonString(receiver ? receiver : "") << R"(")"
+            << R"(,"message":")" << escapeJsonString(message ? message : "") << R"(")"
+            << R"(,"created_at":")" << (created_at ? created_at : "") << R"("})";
+        json += oss.str();
     }
     json += "]";
 
@@ -663,16 +696,15 @@ mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> 
 
     std::string json = "{}";
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        char buf[2048];
-        snprintf(buf, sizeof(buf),
-            R"({"id":%d,"name":"%s","description":"%s","price":%.2f,"unit":"%s","image":"%s"})",
-            sqlite3_column_int(stmt, 0),
-            sqlite3_column_text(stmt, 1),
-            sqlite3_column_text(stmt, 2),
-            sqlite3_column_double(stmt, 3),
-            sqlite3_column_text(stmt, 5),
-            sqlite3_column_text(stmt, 4));
-        json = buf;
+        // ✅ FIXED: Also escape JSON here for safety
+        std::ostringstream oss;
+        oss << R"({"id":)" << sqlite3_column_int(stmt, 0)
+            << R"(,"name":")" << escapeJsonString((const char*)sqlite3_column_text(stmt, 1)) << R"(")"
+            << R"(,"description":")" << escapeJsonString((const char*)sqlite3_column_text(stmt, 2)) << R"(")"
+            << R"(,"price":)" << sqlite3_column_double(stmt, 3)
+            << R"(,"unit":")" << escapeJsonString((const char*)sqlite3_column_text(stmt, 5)) << R"(")"
+            << R"(,"image":")" << escapeJsonString((const char*)sqlite3_column_text(stmt, 4)) << R"("})";
+        json = oss.str();
     }
     sqlite3_finalize(stmt);
     sqlite3_close(db);
@@ -718,17 +750,15 @@ mg_set_request_handler(ctx, "/api/products", [](mg_connection *conn, void *) -> 
         const char *image = (const char*)sqlite3_column_text(stmt, 4);
         const char *unit = (const char*)sqlite3_column_text(stmt, 5);
 
-        char buf[4096];
-        snprintf(buf, sizeof(buf),
-            R"({"id":%d,"name":"%s","description":"%s","price":%.2f,"unit":"%s","image":"%s"})",
-            id,
-            name ? name : "",
-            desc ? desc : "",
-            price,
-            unit ? unit : "unit",
-            image ? image : ""
-        );
-        json += buf;
+        // ✅ FIXED: Also escape JSON here for safety
+        std::ostringstream oss;
+        oss << R"({"id":)" << id
+            << R"(,"name":")" << escapeJsonString(name ? name : "") << R"(")"
+            << R"(,"description":")" << escapeJsonString(desc ? desc : "") << R"(")"
+            << R"(,"price":)" << price
+            << R"(,"unit":")" << escapeJsonString(unit ? unit : "unit") << R"(")"
+            << R"(,"image":")" << escapeJsonString(image ? image : "") << R"("})";
+        json += oss.str();
     }
     json += "]";
 
@@ -1061,14 +1091,13 @@ mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *)
         const char *message = (const char *)sqlite3_column_text(stmt, 2);
         const char *created = (const char *)sqlite3_column_text(stmt, 3);
 
-        char buf[2048];
-        snprintf(buf, sizeof(buf),
-            R"({"sender":"%s","receiver":"%s","message":"%s","created_at":"%s"})",
-            sender ? sender : "",
-            receiver ? receiver : "",
-            message ? message : "",
-            created ? created : "");
-        json += buf;
+        // ✅ FIXED: Use ostringstream and escapeJsonString to build valid JSON
+        std::ostringstream oss;
+        oss << R"({"sender":")" << escapeJsonString(sender ? sender : "") << R"(")"
+            << R"(,"receiver":")" << escapeJsonString(receiver ? receiver : "") << R"(")"
+            << R"(,"message":")" << escapeJsonString(message ? message : "") << R"(")"
+            << R"(,"created_at":")" << (created ? created : "") << R"("})";
+        json += oss.str();
     }
     json += "]";
 
@@ -1082,9 +1111,13 @@ mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *)
 
 mg_set_request_handler(ctx, "/api/get_current_user", [](mg_connection *conn, void *) -> int {
     std::string username = getUsernameFromCookie(conn);
+    // ✅ FIXED: Also escape JSON here for safety
+    std::ostringstream oss;
+    oss << R"({"username":")" << escapeJsonString(username) << R"("})";
+    
     mg_printf(conn,
-        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n"
-        "{\"username\":\"%s\"}", username.c_str());
+        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n%s",
+        oss.str().c_str());
     return 200;
 }, nullptr);
 
@@ -1111,7 +1144,12 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
     // Check for both 'receiver' (user side) and 'reply_receiver' (admin side)
     // The messageadmin.html uses 'reply_receiver' for the recipient's name/ID
     if (mg_get_var(post_data.data(), n, "receiver", receiver, sizeof(receiver)) <= 0) {
-        mg_get_var(post_data.data(), n, "reply_receiver", receiver, sizeof(receiver));
+        // This line was wrong in the original, it should be 'receiver' not 'reply_receiver'
+        mg_get_var(post_data.data(), n, "receiver", receiver, sizeof(receiver));
+        // Let's check for the admin's field name
+        if (strlen(receiver) == 0) {
+             mg_get_var(post_data.data(), n, "reply_receiver", receiver, sizeof(receiver));
+        }
     }
     mg_get_var(post_data.data(), n, "message", message, sizeof(message));
 
@@ -1658,10 +1696,10 @@ mg_set_request_handler(ctx, "/update_product", [](mg_connection *conn, void *) -
     sqlite3_bind_text(stmt, 5, tags.c_str(), -1, SQLITE_TRANSIENT);
 
     if (newImage.empty()) {
+        sqlite3_bind_int(stmt, 6, atoi(id.c_str()));
+    } else {
         sqlite3_bind_text(stmt, 6, newImage.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 7, atoi(id.c_str()));
-    } else {
-        sqlite3_bind_int(stmt, 6, atoi(id.c_str()));
     }
 
     sqlite3_step(stmt);
@@ -2064,10 +2102,13 @@ mg_set_request_handler(ctx, "/api/profile", [](mg_connection *conn, void *) -> i
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 
+    // ✅ FIXED: Also escape JSON here for safety
+    std::ostringstream oss;
+    oss << R"({ "name": ")" << escapeJsonString(name) << R"(", "email": ")" << escapeJsonString(email) << R"(" })";
+
     mg_printf(conn,
-        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n"
-        "{ \"name\": \"%s\", \"email\": \"%s\" }",
-        name.c_str(), email.c_str());
+        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n%s",
+        oss.str().c_str());
 
     return 200;
 }, nullptr);
@@ -2194,13 +2235,13 @@ mg_set_request_handler(ctx, "/product", [](mg_connection *conn, void *) -> int {
     sqlite3_bind_int(stmt, 1, id);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        const char *name = (const char*)sqlite3_column_text(stmt, 1);
-        const char *desc = (const char*)sqlite3_column_text(stmt, 2);
-        double price = sqlite3_column_double(stmt, 3);
-        const char *imagePath = (const char*)sqlite3_column_text(stmt, 4);
-        const char *priceUnits = (const char*)sqlite3_column_text(stmt, 5);
-        const char *owner = (const char*)sqlite3_column_text(stmt, 6);
-        const char *tags = (const char*)sqlite3_column_text(stmt, 7);
+        const char *name = (const char*)sqlite3_column_text(stmt, 0); // Corrected index
+        const char *desc = (const char*)sqlite3_column_text(stmt, 1); // Corrected index
+        double price = sqlite3_column_double(stmt, 2); // Corrected index
+        const char *imagePath = (const char*)sqlite3_column_text(stmt, 3); // Corrected index
+        const char *priceUnits = (const char*)sqlite3_column_text(stmt, 4); // Corrected index
+        const char *owner = (const char*)sqlite3_column_text(stmt, 5); // Corrected index
+        const char *tags = (const char*)sqlite3_column_text(stmt, 6); // Corrected index
 
 
         std::string safeName = name ? name : "Untitled Product";
@@ -2254,6 +2295,7 @@ mg_set_request_handler(ctx, "/product", [](mg_connection *conn, void *) -> int {
 "    <p class='price-tag'>Price: $%.2f / %s</p>"
 "    <p>%s</p>"
 "    <p><b>Tags:</b> %s</p>"   
+"    <p><b>Owner:</b> %s</p>"   
 "    <a href='/supplierbuyer/supplierbuyerdash.html'>Back to Dashboard</a><br>"
 "  </div>"
 "</div>"
@@ -2456,4 +2498,4 @@ mg_set_request_handler(ctx, "/edit_request", [](mg_connection *conn, void *) -> 
     }
 
     return 0;
-} // <-- Make sure this is the final closing brace for main()
+} // <-- This is the final closing brace for main()

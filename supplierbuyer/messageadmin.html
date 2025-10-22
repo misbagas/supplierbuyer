@@ -63,25 +63,36 @@ let currentConversations = {};
 let activeConversationId = null;
 
 async function loadConversations() {
-  const res = await fetch("/api/messages");
-  const messages = await res.json();
-  
-  const grouped = {};
-  messages.forEach(m => {
-    const participant = m.sender !== 'Admin' ? m.sender : m.receiver;
-    if (!participant) return;
-    const convoId = `${m.product_id}-${participant}`;
-    if (!grouped[convoId]) {
-      grouped[convoId] = { messages: [], lastUpdate: null, participant, product_id: m.product_id };
+  try {
+    const res = await fetch("/api/messages");
+    if (!res.ok) {
+        console.error("Failed to fetch messages:", res.status);
+        return;
     }
-    grouped[convoId].messages.push(m);
-    grouped[convoId].lastUpdate = m.created_at;
-  });
+    const messages = await res.json();
+    
+    const grouped = {};
+    messages.forEach(m => {
+      const participant = m.sender !== 'Admin' ? m.sender : m.receiver;
+      if (!participant) return;
+      const convoId = `${m.product_id}-${participant}`;
+      if (!grouped[convoId]) {
+        grouped[convoId] = { messages: [], lastUpdate: null, participant, product_id: m.product_id };
+      }
+      grouped[convoId].messages.push(m);
+      grouped[convoId].lastUpdate = m.created_at;
+    });
 
-  currentConversations = grouped;
-  renderConversationList();
-  if (activeConversationId && currentConversations[activeConversationId]) {
-    openConversation(activeConversationId, false);
+    currentConversations = grouped;
+    renderConversationList();
+    if (activeConversationId && currentConversations[activeConversationId]) {
+      // Re-render the currently open conversation to show new messages
+      // ✅ CHANGED: Set to 'true' to scroll to bottom on auto-refresh
+      openConversation(activeConversationId, true);
+    }
+  } catch (error) {
+    console.error("Error loading or parsing conversations:", error);
+    // This catch block will now show you if the JSON is invalid
   }
 }
 
@@ -94,12 +105,13 @@ function renderConversationList() {
 
   sortedIds.forEach(id => {
     const convo = currentConversations[id];
-    const lastMsg = convo.messages[convo.messages.length - 1];
+    // Find the last message in the array (which is already sorted by ID/date)
+    const lastMsg = convo.messages.length > 0 ? convo.messages[convo.messages.length - 1] : null;
     const div = document.createElement('div');
     div.className = 'conversation' + (id === activeConversationId ? ' active' : '');
     div.innerHTML = `
   <b>${convo.participant}</b>
-  <span>${lastMsg ? 'Product #' + convo.product_id + ': ' + lastMsg.message : ''}</span>`;
+  <span>${lastMsg ? 'Product #' + convo.product_id + ': ' + lastMsg.message : 'No messages yet'}</span>`;
     div.onclick = () => openConversation(id, true);
     list.appendChild(div);
   });
@@ -108,19 +120,44 @@ function renderConversationList() {
 function openConversation(convoId, shouldScroll) {
   activeConversationId = convoId;
   const convo = currentConversations[convoId];
+  if (!convo) {
+      console.error("Tried to open invalid conversation:", convoId);
+      return;
+  }
+  
+  // Highlight the active conversation in the list
+  document.querySelectorAll('.conversation').forEach(el => {
+      el.classList.remove('active');
+  });
+  const activeEl = Array.from(document.querySelectorAll('.conversation')).find(el => el.onclick.toString().includes(`'${convoId}'`));
+  if (activeEl) {
+      activeEl.classList.add('active');
+  }
+
   document.getElementById('placeholder').style.display = 'none';
   document.getElementById('chatWindow').style.display = 'flex';
   document.getElementById('chatHeader').innerText = `Chat with ${convo.participant} (Product #${convo.product_id})`;
 
   const chatBox = document.getElementById('chatBox');
   chatBox.innerHTML = '';
-  convo.messages.slice().reverse().forEach(m => {
+  
+  // Sort messages by date before displaying
+  convo.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  
+  convo.messages.forEach(m => {
     const div = document.createElement('div');
     div.className = 'message ' + (m.sender === 'Admin' ? 'sent' : 'received');
     div.innerHTML = `${m.message}<div class="meta">${new Date(m.created_at).toLocaleString()}</div>`;
     chatBox.appendChild(div);
   });
-  if (shouldScroll) chatBox.scrollTop = chatBox.scrollHeight;
+  
+  // ✅ CHANGED: Wrapped in setTimeout to fix scroll timing issue
+  if (shouldScroll) {
+      setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 0); // 0ms delay pushes this command to the end of the event queue
+  }
+  
   document.getElementById('reply_product_id').value = convo.product_id;
   document.getElementById('reply_receiver').value = convo.participant;
 }
@@ -131,8 +168,8 @@ document.getElementById('adminReplyForm').addEventListener('submit', async e => 
   // This part is crucial and correct
   const body = new URLSearchParams(new FormData(e.target));
   
-  const res = await fetch('/send_message', { 
-    method: 'POST', 
+  const res = await fetch('/send_message', {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
@@ -141,6 +178,7 @@ document.getElementById('adminReplyForm').addEventListener('submit', async e => 
   
   if (res.ok) {
     e.target.message.value = '';
+    // Manually load conversations to immediately see the sent message
     await loadConversations();
   } else {
     alert('Failed to send reply.');

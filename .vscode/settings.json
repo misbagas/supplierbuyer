@@ -46,6 +46,7 @@
         "thread": "cpp",
         "chrono": "cpp",
         "csignal": "cpp",
+<<<<<<< HEAD
         "ratio": "cpp",
         "bit": "cpp",
         "charconv": "cpp",
@@ -65,5 +66,8 @@
         "stop_token": "cpp",
         "text_encoding": "cpp",
         "variant": "cpp"
+=======
+        "ratio": "cpp"
+>>>>>>> e7ac34daead1428e682680c610d899176721cd72
     }
 }

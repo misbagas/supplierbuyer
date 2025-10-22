@@ -1,0 +1,8 @@
+DROP TABLE products;
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    description TEXT,
+    price REAL,
+    image TEXT
+);
