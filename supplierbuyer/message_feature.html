@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Admin</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 20px; }
+.container { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 700px; margin:auto; }
+.message-box { height: 400px; overflow-y:auto; border:1px solid #ddd; padding:10px; border-radius:6px; background:#E5DDD5; display:flex; flex-direction:column; gap:8px; }
+.msg { padding:8px 12px; border-radius:8px; max-width:70%; }
+.sent { background:#DCF8C6; align-self:flex-end; }
+.received { background:#fff; align-self:flex-start; }
+form { display:flex; margin-top:10px; gap:10px; }
+textarea { flex:1; border-radius:6px; padding:8px; }
+button { background:#007BFF; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>💬 Chat with Admin</h2>
+  <div id="messages" class="message-box"></div>
+
+  <form id="chatForm">
+    <input type="hidden" id="product_id" name="product_id">
+    <input type="hidden" id="receiver" name="receiver" value="Admin">
+    <textarea id="message" name="message" placeholder="Type your message..." required></textarea>
+    <button type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const productId = params.get('product_id') || params.get('id'); // ✅ fallback
+document.getElementById('product_id').value = productId;
+
+async function loadConversation() {
+  const res = await fetch(`/api/conversation?product_id=${productId}`);
+  if (!res.ok) return;
+  const msgs = await res.json();
+  const box = document.getElementById('messages');
+  box.innerHTML = '';
+  msgs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  msgs.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'msg ' + (m.sender === 'Admin' ? 'received' : 'sent');
+    div.innerHTML = `<div>${m.message}</div>
+                     <div style="font-size:11px;color:#666;">
+                       ${new Date(m.created_at).toLocaleString()}
+                     </div>`;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById('chatForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const fd = new FormData(e.target);
+  const userRes = await fetch('/api/get_current_user');
+  const { username } = await userRes.json();
+  fd.append('sender', username);
+
+  const body = new URLSearchParams(fd);
+
+  const res = await fetch('/send_message', { 
+    method: 'POST', 
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body 
+  });
+
+  if (res.ok) {
+    document.getElementById('message').value = '';
+    // 🟢 Immediately show the sent message
+    loadConversation();
+  } else {
+    alert('Failed to send message.');
+  }
+});
+
+// 🟢 Auto-refresh every 3 seconds for near real-time updates
+loadConversation();
+setInterval(loadConversation, 3000);
+</script>
+
+
+
+</body>
+</html>

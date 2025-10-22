@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Messages</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f4f6f9; }
+    h1, h3 { color: #333; margin: 0; }
+    .container { display: flex; height: 100vh; }
+    .sidebar { width: 320px; border-right: 1px solid #ddd; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 15px; border-bottom: 1px solid #ddd; }
+    #conversationList { flex: 1; overflow-y: auto; }
+    .conversation { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; }
+    .conversation:hover, .conversation.active { background: #e9e9e9; }
+    .conversation b { display: block; font-size: 14px; color: #000; }
+    .conversation span { font-size: 13px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .chat-area { flex: 1; display: flex; flex-direction: column; background: #E5DDD5; }
+    .chat-header { padding: 15px; border-bottom: 1px solid #ddd; background: #f1f1f1; font-weight: bold; }
+    .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .message { padding: 8px 12px; border-radius: 8px; max-width: 60%; line-height: 1.4; }
+    .sent { background: #DCF8C6; align-self: flex-end; }
+    .received { background: #FFFFFF; align-self: flex-start; }
+    .meta { font-size: 11px; color: #888; margin-top: 4px; text-align: right; }
+    .chat-input-area { border-top: 1px solid #ddd; padding: 10px; background: #f1f1f1; }
+    #adminReplyForm { display: flex; gap: 10px; }
+    #adminReplyForm textarea { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; resize: none; }
+    #adminReplyForm button { padding: 10px 20px; background: #007BFF; color: #fff; border: none; border-radius: 20px; cursor: pointer; }
+    #placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>📩 All Messages</h1>
+      </div>
+      <div id="conversationList">
+        </div>
+    </div>
+    <div class="chat-area">
+      <div id="placeholder">
+        <p>Select a conversation to start chatting.</p>
+      </div>
+      <div id="chatWindow" style="display:none; flex:1; flex-direction:column;">
+        <div class="chat-header" id="chatHeader"></div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input-area">
+            <form id="adminReplyForm">
+              <input type="hidden" name="product_id" id="reply_product_id">
+              <input type="hidden" name="receiver" id="reply_receiver">
+              <input type="hidden" name="sender" value="Admin"> 
+              <textarea name="message" placeholder="Type your reply..." required></textarea>
+              <button type="submit">Send</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+let currentConversations = {};
+let activeConversationId = null;
+
+async function loadConversations() {
+  const res = await fetch("/api/messages");
+  const messages = await res.json();
+  
+  const grouped = {};
+  messages.forEach(m => {
+    const participant = m.sender !== 'Admin' ? m.sender : m.receiver;
+    if (!participant) return;
+    const convoId = `${m.product_id}-${participant}`;
+    if (!grouped[convoId]) {
+      grouped[convoId] = { messages: [], lastUpdate: null, participant, product_id: m.product_id };
+    }
+    grouped[convoId].messages.push(m);
+    grouped[convoId].lastUpdate = m.created_at;
+  });
+
+  currentConversations = grouped;
+  renderConversationList();
+  if (activeConversationId && currentConversations[activeConversationId]) {
+    openConversation(activeConversationId, false);
+  }
+}
+
+function renderConversationList() {
+  const list = document.getElementById("conversationList");
+  list.innerHTML = "";
+  const sortedIds = Object.keys(currentConversations).sort((a, b) => {
+    return new Date(currentConversations[b].lastUpdate) - new Date(currentConversations[a].lastUpdate);
+  });
+
+  sortedIds.forEach(id => {
+    const convo = currentConversations[id];
+    const lastMsg = convo.messages[convo.messages.length - 1];
+    const div = document.createElement('div');
+    div.className = 'conversation' + (id === activeConversationId ? ' active' : '');
+    div.innerHTML = `
+  <b>${convo.participant}</b>
+  <span>${lastMsg ? 'Product #' + convo.product_id + ': ' + lastMsg.message : ''}</span>`;
+    div.onclick = () => openConversation(id, true);
+    list.appendChild(div);
+  });
+}
+
+function openConversation(convoId, shouldScroll) {
+  activeConversationId = convoId;
+  const convo = currentConversations[convoId];
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('chatWindow').style.display = 'flex';
+  document.getElementById('chatHeader').innerText = `Chat with ${convo.participant} (Product #${convo.product_id})`;
+
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML = '';
+  convo.messages.slice().reverse().forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'message ' + (m.sender === 'Admin' ? 'sent' : 'received');
+    div.innerHTML = `${m.message}<div class="meta">${new Date(m.created_at).toLocaleString()}</div>`;
+    chatBox.appendChild(div);
+  });
+  if (shouldScroll) chatBox.scrollTop = chatBox.scrollHeight;
+  document.getElementById('reply_product_id').value = convo.product_id;
+  document.getElementById('reply_receiver').value = convo.participant;
+}
+
+document.getElementById('adminReplyForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  // This part is crucial and correct
+  const body = new URLSearchParams(new FormData(e.target));
+  
+  const res = await fetch('/send_message', { 
+    method: 'POST', 
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body 
+  });
+  
+  if (res.ok) {
+    e.target.message.value = '';
+    await loadConversations();
+  } else {
+    alert('Failed to send reply.');
+  }
+});
+
+// ... (other functions) ...
+
+loadConversations();
+setInterval(loadConversations, 3000);
+</script>
+
+</body>
+</html>
