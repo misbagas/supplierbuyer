@@ -14,10 +14,42 @@ body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 20px; }
 form { display:flex; margin-top:10px; gap:10px; }
 textarea { flex:1; border-radius:6px; padding:8px; }
 button { background:#007BFF; color:#fff; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; }
+
+/* 🟢 ADDED STYLES 🟢 */
+.msg { position: relative; } /* Needed for positioning */
+.delete-btn {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  display: none; /* Hide by default */
+  z-index: 10;
+}
+.msg:hover .delete-btn { display: block; } /* Show on hover */
+.delete-btn:hover { color: #000; }
+
+.clear-chat-btn {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  float: right; /* Position it to the right */
+}
+.clear-chat-btn:hover { background: #c82333; }
+.container h2 { display: inline-block; } /* Keep h2 and button on same line */
+/* 🟢 END ADDED STYLES 🟢 */
+
 </style>
 </head>
 <body>
 <div class="container">
+  <button class="clear-chat-btn" onclick="clearConversation()">Clear Entire Chat</button>
   <h2>💬 Chat with Admin</h2>
   <div id="messages" class="message-box"></div>
 
@@ -44,7 +76,10 @@ async function loadConversation() {
   msgs.forEach(m => {
     const div = document.createElement('div');
     div.className = 'msg ' + (m.sender === 'Admin' ? 'received' : 'sent');
-    div.innerHTML = `<div>${m.message}</div>
+    // 🟢 CHANGED: Added delete button (this relies on the backend fix)
+    div.innerHTML = `
+                     <span class="delete-btn" onclick="deleteMessage(${m.id})">&times;</span>
+                     <div>${m.message}</div>
                      <div style="font-size:11px;color:#666;">
                        ${new Date(m.created_at).toLocaleString()}
                      </div>`;
@@ -77,6 +112,64 @@ document.getElementById('chatForm').addEventListener('submit', async e => {
     alert('Failed to send message.');
   }
 });
+
+// 🟢 ADDED: Function to delete a single message
+async function deleteMessage(messageId) {
+    if (!confirm('Are you sure you want to delete this message for everyone?')) {
+        return;
+    }
+    
+    const body = new URLSearchParams({ id: messageId });
+    
+    const res = await fetch('/api/delete_message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+    });
+
+    if (res.ok) {
+        await loadConversation(); // Reload the chat
+    } else {
+        alert('Failed to delete message.');
+    }
+}
+
+// 🟢 ADDED: Function to clear the conversation
+async function clearConversation() {
+    if (!confirm('Are you sure you want to delete this entire conversation for everyone? This cannot be undone.')) {
+        return;
+    }
+
+    // We need the current user's username to identify the conversation
+    const userRes = await fetch('/api/get_current_user');
+    if (!userRes.ok) {
+        alert('Could not identify user. Please log in again.');
+        return;
+    }
+    const { username } = await userRes.json();
+
+    if (!username) {
+        alert('Could not identify user. Please log in again.');
+        return;
+    }
+
+    const body = new URLSearchParams({
+        product_id: productId,
+        participant: username
+    });
+
+    const res = await fetch('/api/clear_conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+    });
+
+    if (res.ok) {
+        await loadConversation(); // This will refresh the chat, showing it's empty
+    } else {
+        alert('Failed to clear conversation.');
+    }
+}
 
 // 🟢 Auto-refresh every 3 seconds for near real-time updates
 loadConversation();

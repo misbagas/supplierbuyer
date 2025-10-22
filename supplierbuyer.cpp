@@ -776,92 +776,237 @@ mg_set_request_handler(ctx, "/api/products", [](mg_connection *conn, void *) -> 
 }, nullptr);
 
 mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerhome.html", [](mg_connection *conn, void *) -> int {
+    const mg_request_info *ri = mg_get_request_info(conn);
+
+    char search[256] = {0};
+    char tag[128] = {0};
+    if (ri->query_string) {
+        mg_get_var(ri->query_string, strlen(ri->query_string), "search", search, sizeof(search));
+        mg_get_var(ri->query_string, strlen(ri->query_string), "tag", tag, sizeof(tag));
+    }
+
+    std::string searchTerm(search);
+    std::string selectedTag(tag);
+    bool hasSearch = !searchTerm.empty();
+    bool hasTag = !selectedTag.empty();
+
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH);
     if (!db) {
         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
         return 500;
     }
 
+    // 🔹 Get all unique tags first
+    std::unordered_set<std::string> allTags;
+    sqlite3_stmt *tagStmt = nullptr;
+    if (sqlite3_prepare_v2(db, "SELECT tags FROM products WHERE tags IS NOT NULL;", -1, &tagStmt, nullptr) == SQLITE_OK) {
+        while (sqlite3_step(tagStmt) == SQLITE_ROW) {
+            const char *tagsStr = (const char *)sqlite3_column_text(tagStmt, 0);
+            if (tagsStr) {
+                std::istringstream ss(tagsStr);
+                std::string tag;
+                while (std::getline(ss, tag, ',')) {
+                    std::string trimmed;
+                    for (char c : tag) if (!isspace((unsigned char)c)) trimmed += c;
+                    if (!trimmed.empty()) allTags.insert(trimmed);
+                }
+            }
+        }
+    }
+    sqlite3_finalize(tagStmt);
+
+    // 🔹 Build main query
     sqlite3_stmt *stmt = nullptr;
-    const char *sql = 
-    "SELECT id, name, description, minPrice, image, priceUnits, 'product' AS type FROM products "
-    "UNION ALL "
-    "SELECT id, destination AS name, description, target_price AS minPrice, image, 'request' AS priceUnits, 'request' AS type "
-    "FROM requests "
-    "ORDER BY id DESC;";
+    std::string sql;
 
+    if (hasSearch || hasTag) {
+        sql = R"(
+            SELECT id, name, description, minPrice, image, priceUnits, tags, 'product' AS type
+            FROM products
+            WHERE (name LIKE ? OR description LIKE ? OR tags LIKE ?)
+        )";
+        if (hasTag) sql += " AND tags LIKE ?";
+        sql += R"(
+            UNION ALL
+            SELECT id, destination AS name, description, target_price AS minPrice, image, 'request' AS priceUnits, NULL AS tags, 'request' AS type
+            FROM requests
+            WHERE (destination LIKE ? OR description LIKE ?)
+            ORDER BY id DESC;
+        )";
+    } else {
+        sql = R"(
+            SELECT id, name, description, minPrice, image, priceUnits, tags, 'product' AS type FROM products
+            UNION ALL
+            SELECT id, destination AS name, description, target_price AS minPrice, image, 'request' AS priceUnits, NULL AS tags, 'request' AS type FROM requests
+            ORDER BY id DESC;
+        )";
+    }
 
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        fprintf(stderr, "Home page prepare error: %s\n", sqlite3_errmsg(db));
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        fprintf(stderr, "Home query error: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase query failed");
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nQuery failed");
         return 500;
     }
 
+    int bindIndex = 1;
+    if (hasSearch || hasTag) {
+        std::string like = "%" + searchTerm + "%";
+        sqlite3_bind_text(stmt, bindIndex++, like.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, bindIndex++, like.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, bindIndex++, like.c_str(), -1, SQLITE_TRANSIENT);
+        if (hasTag) {
+            std::string tagLike = "%" + selectedTag + "%";
+            sqlite3_bind_text(stmt, bindIndex++, tagLike.c_str(), -1, SQLITE_TRANSIENT);
+        }
+        sqlite3_bind_text(stmt, bindIndex++, like.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, bindIndex++, like.c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    // 🔹 Render HTML
     mg_printf(conn,
         "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
         "<!DOCTYPE html><html lang='en'><head>"
-        "<meta charset='UTF-8'>"
-        "<meta name='viewport' content='width=device-width, initial-scale=1'/>"
-        "<title>All Products</title>"
+        "<meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'/>"
+        "<title>Supplier Buyer Home</title>"
         "<style>"
-        "body { font-family: Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }"
-        "h1 { text-align:center; margin-bottom:30px; color:#222; }"
-        ".grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px; max-width:1200px; margin:0 auto; }"
-        ".card { background:#fff; border-radius:10px; padding:15px; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:transform 0.2s ease; text-align:center; }"
-        ".card:hover { transform:translateY(-5px); }"
-        ".card img { max-width:100%%; height:200px; object-fit:cover; border-radius:8px; margin-bottom:10px; }"
-        ".card h3 { margin:10px 0; font-size:18px; color:#333; }"
-        ".card p { font-size:14px; color:#666; }"
-        ".price { font-size:18px; font-weight:bold; color:#00a6e1; margin-top:10px; }"
-        "a { text-decoration:none; color:inherit; }"
-        "</style>"
-        "</head><body>"
-        "<h1>All Available Products</h1>"
-        "<div class='grid'>"
+        "body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:20px;}"
+        "h1{text-align:center;margin-bottom:20px;color:#222;}"
+        ".search-box{text-align:center;margin-bottom:15px;}"
+        ".search-box input{padding:8px;width:240px;border:1px solid #ccc;border-radius:5px;}"
+        ".tags-box{text-align:center;margin-bottom:25px;}"
+        ".tag{display:inline-block;background:#e8f4fc;color:#0077cc;padding:6px 10px;margin:4px;border-radius:5px;text-decoration:none;}"
+        ".tag:hover{background:#0077cc;color:white;}"
+        ".selected-tag{background:#0077cc;color:white;}"
+        ".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;max-width:1200px;margin:0 auto;}"
+        ".card{background:#fff;border-radius:10px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s;text-align:center;}"
+        ".card:hover{transform:translateY(-5px);}img{max-width:100%%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:10px;}"
+        ".price{font-size:18px;font-weight:bold;color:#00a6e1;margin-top:10px;}"
+        ".tags{margin-top:8px;font-size:13px;color:#666;}"
+        "</style></head><body>"
+        "<h1>All Products & Requests</h1>"
+        "<div class='search-box'>"
+        "<form method='GET' action='/supplierbuyer/supplierbuyerhome.html'>"
+        "<input type='text' name='search' placeholder='Search...' value='%s'>"
+        "<button type='submit'>Search</button>"
+        "</form></div>",
+        search
     );
 
+    // 🔹 Tag filter display
+    mg_printf(conn, "<div class='tags-box'><b>Tags:</b><br>");
+    if (allTags.empty()) {
+        mg_printf(conn, "<p style='color:#999;'>No tags found.</p>");
+    } else {
+        for (const auto &t : allTags) {
+            mg_printf(conn,
+                "<a class='tag %s' href='/supplierbuyer/supplierbuyerhome.html?tag=%s'>#%s</a>",
+                (selectedTag == t ? "selected-tag" : ""),
+                t.c_str(), t.c_str());
+        }
+    }
+    mg_printf(conn,
+    "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+    "<!DOCTYPE html><html lang='en'><head>"
+    "<meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'/>"
+    "<title>Supplier Buyer Home</title>"
+    "<style>"
+    "body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:0;}"
+    ".slider{position:relative;overflow:hidden;width:100%%;height:300px;margin-bottom:20px;}"
+    ".slides{display:flex;transition:transform 0.5s ease-in-out;width:100%%;height:100%%;}"
+    ".slide{min-width:100%%;height:100%%;}"
+    ".slide img{width:100%%;height:100%%;object-fit:cover;}"
+    ".nav-button{position:absolute;top:50%%;transform:translateY(-50%%);background:rgba(0,0,0,0.5);color:white;"
+    "border:none;padding:10px;cursor:pointer;border-radius:50%%;font-size:18px;}"
+    ".nav-button:hover{background:rgba(0,0,0,0.8);}"
+    ".prev{left:10px;}"
+    ".next{right:10px;}"
+    ".dot-container{text-align:center;position:absolute;bottom:10px;width:100%%;}"
+    ".dot{height:10px;width:10px;margin:0 4px;background-color:#bbb;border-radius:50%%;display:inline-block;cursor:pointer;}"
+    ".active-dot{background-color:#007bff;}"
+    "</style></head><body>"
+    "<div class='slider'>"
+    "<div class='slides'>"
+    "<div class='slide'><img src='/uploads/slider1.jpg' alt='Slide 1'></div>"
+    "<div class='slide'><img src='/uploads/slider2.jpg' alt='Slide 2'></div>"
+    "<div class='slide'><img src='/uploads/slider3.jpg' alt='Slide 3'></div>"
+    "</div>"
+    "<button class='nav-button prev'>&#10094;</button>"
+    "<button class='nav-button next'>&#10095;</button>"
+    "<div class='dot-container'>"
+    "<span class='dot active-dot'></span>"
+    "<span class='dot'></span>"
+    "<span class='dot'></span>"
+    "</div>"
+    "</div>"
+    "<script>"
+    "let index=0;"
+    "const slides=document.querySelector('.slides');"
+    "const dots=document.querySelectorAll('.dot');"
+    "function showSlide(i){"
+    "  if(i>=dots.length) index=0;"
+    "  if(i<0) index=dots.length-1;"
+    "  slides.style.transform='translateX(' + (-index*100) + '%)';"
+    "  dots.forEach((d,j)=>d.classList.toggle('active-dot',j===index));"
+    "}"
+    "document.querySelector('.next').onclick=()=>{index++;showSlide(index);};"
+    "document.querySelector('.prev').onclick=()=>{index--;showSlide(index);};"
+    "dots.forEach((d,i)=>d.onclick=()=>{index=i;showSlide(index);});"
+    "setInterval(()=>{index++;showSlide(index);},4000);"
+    "</script>"
+);
+
+    mg_printf(conn, "</div><div class='grid'>");
+
+    bool hasResults = false;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-       int id = sqlite3_column_int(stmt, 0);
-const char *name = (const char*)sqlite3_column_text(stmt, 1);
-const char *desc = (const char*)sqlite3_column_text(stmt, 2);
-double price = sqlite3_column_double(stmt, 3);
-const char *dbImage = (const char*)sqlite3_column_text(stmt, 4);
-const char *unit = (const char*)sqlite3_column_text(stmt, 5);
-const char *type = (const char*)sqlite3_column_text(stmt, 6);
+        hasResults = true;
+        int id = sqlite3_column_int(stmt, 0);
+        const char *name = (const char*)sqlite3_column_text(stmt, 1);
+        const char *desc = (const char*)sqlite3_column_text(stmt, 2);
+        double price = sqlite3_column_double(stmt, 3);
+        const char *image = (const char*)sqlite3_column_text(stmt, 4);
+        const char *unit = (const char*)sqlite3_column_text(stmt, 5);
+        const char *tags = (const char*)sqlite3_column_text(stmt, 6);
+        const char *type = (const char*)sqlite3_column_text(stmt, 7);
 
-std::string imageUrl = (dbImage && strlen(dbImage) > 0)
-    ? dbImage
-    : (strcmp(type, "request") == 0 ? "/uploads/request_placeholder.png" : "/uploads/noimage.png");
+        std::string imageUrl = (image && strlen(image) > 0)
+            ? image : "/uploads/noimage.png";
 
-mg_printf(conn,
-    "<div class='card'>"
-    "<a href='%s?id=%d'>"
-    "<img src='%s' alt='%s'/>"
-    "<h3>%s</h3>"
-    "</a>"
-    "<p>%s</p>"
-    "<div class='price'>$%.2g %s</div>"
-    "<div style='margin-top:8px;'>%s</div>"
-    "</div>",
-    (strcmp(type, "request") == 0 ? "/request_detail" : "/product_detail"),
-    id,
-    imageUrl.c_str(),
-    name ? name : "Item",
-    name ? name : "Unnamed",
-    desc ? desc : "",
-    price,
-    unit ? unit : "",
-    strcmp(type, "request") == 0 ? "<span style='color:#d9534f;'>[Request Product]</span>" : ""
-    );
+        mg_printf(conn,
+            "<div class='card'>"
+            "<a href='%s?id=%d'>"
+            "<img src='%s' alt='%s'/>"
+            "<h3>%s</h3></a>"
+            "<p>%s</p>"
+            "<div class='price'>$%.2f %s</div>",
+            (strcmp(type, "request") == 0 ? "/request_detail" : "/product_detail"),
+            id, imageUrl.c_str(),
+            name ? name : "Item",
+            name ? name : "Unnamed",
+            desc ? desc : "",
+            price,
+            unit ? unit : ""
+        );
+
+        if (tags && strlen(tags) > 0) {
+            mg_printf(conn, "<div class='tags'>Tags: %s</div>", tags);
+        }
+
+        mg_printf(conn, "</div>");
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 
+    if (!hasResults) {
+        mg_printf(conn, "<p style='text-align:center;color:#666;'>No results found.</p>");
+    }
+
     mg_printf(conn, "</div></body></html>");
     return 200;
 }, nullptr);
+
 
 mg_set_request_handler(ctx, "/request_detail", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
@@ -1047,6 +1192,9 @@ mg_set_request_handler(ctx, "/message_feature.html", [](mg_connection *conn, voi
 // In supplierbuyer.cpp
 
 
+// ... inside main() ...
+
+// 🟢 MODIFIED: /api/conversation handler (to include message ID)
 mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
     std::string currentUser = getUsernameFromCookie(conn);
@@ -1065,11 +1213,11 @@ mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *)
     sqlite3_stmt *stmt = nullptr;
     // Fetch ALL messages for that product, regardless of sender/receiver
     const char *sql = R"(
-        SELECT sender, receiver, message, strftime('%Y-%m-%d %H:%M:%S', created_at)
+        SELECT id, sender, receiver, message, strftime('%Y-%m-%d %H:%M:%S', created_at)
         FROM messages
         WHERE product_id = ?
         ORDER BY id ASC;
-    )";
+    )"; // ✅ CHANGED: Added 'id' to the SELECT statement
 
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
         fprintf(stderr, "Conversation query error: %s\n", sqlite3_errmsg(db));
@@ -1086,14 +1234,18 @@ mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *)
         if (!first) json += ",";
         first = false;
 
-        const char *sender = (const char *)sqlite3_column_text(stmt, 0);
-        const char *receiver = (const char *)sqlite3_column_text(stmt, 1);
-        const char *message = (const char *)sqlite3_column_text(stmt, 2);
-        const char *created = (const char *)sqlite3_column_text(stmt, 3);
+        // ✅ CHANGED: Read the 'id' from column 0
+        int id = sqlite3_column_int(stmt, 0); 
+        const char *sender = (const char *)sqlite3_column_text(stmt, 1);
+        const char *receiver = (const char *)sqlite3_column_text(stmt, 2);
+        const char *message = (const char *)sqlite3_column_text(stmt, 3);
+        const char *created = (const char *)sqlite3_column_text(stmt, 4);
 
         // ✅ FIXED: Use ostringstream and escapeJsonString to build valid JSON
         std::ostringstream oss;
-        oss << R"({"sender":")" << escapeJsonString(sender ? sender : "") << R"(")"
+        // ✅ CHANGED: Added 'id' to the JSON output
+        oss << R"({"id":)" << id 
+            << R"(,"sender":")" << escapeJsonString(sender ? sender : "") << R"(")"
             << R"(,"receiver":")" << escapeJsonString(receiver ? receiver : "") << R"(")"
             << R"(,"message":")" << escapeJsonString(message ? message : "") << R"(")"
             << R"(,"created_at":")" << (created ? created : "") << R"("})";
@@ -1108,6 +1260,117 @@ mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *)
     return 200;
 }, nullptr);
 
+// ... inside main() ...
+
+// 🟢 ADDED: Handler to delete a single message by its ID
+mg_set_request_handler(ctx, "/api/delete_message", [](mg_connection *conn, void *) -> int {
+    if (strcmp(mg_get_request_info(conn)->request_method, "POST") != 0) {
+        return 405; // Method Not Allowed
+    }
+
+    const struct mg_request_info *ri = mg_get_request_info(conn);
+    int len = (int)ri->content_length;
+    if (len <= 0 || len > 128) len = 128;
+    std::vector<char> post_data(len + 1);
+    int n = mg_read(conn, post_data.data(), len);
+    post_data[n] = '\0';
+
+    char id_str[32] = {0};
+    mg_get_var(post_data.data(), n, "id", id_str, sizeof(id_str));
+
+    if (strlen(id_str) == 0) {
+        mg_printf(conn, "HTTP/1.1 400 Bad Request\r\n\r\nMissing message ID.");
+        return 400;
+    }
+
+    sqlite3 *db = safe_open(PRODUCTS_DB_PATH);
+    if (!db) {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
+        return 500;
+    }
+
+    sqlite3_stmt *stmt = nullptr;
+    const char *sql = "DELETE FROM messages WHERE id = ?;";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        fprintf(stderr, "Delete message prepare error: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nQuery failed");
+        return 500;
+    }
+
+    sqlite3_bind_int(stmt, 1, atoi(id_str));
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    if (rc == SQLITE_DONE) {
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+        return 200;
+    } else {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDelete failed.");
+        return 500;
+    }
+}, nullptr);
+
+// 🟢 ADDED: Handler to delete an entire conversation thread
+mg_set_request_handler(ctx, "/api/clear_conversation", [](mg_connection *conn, void *) -> int {
+    if (strcmp(mg_get_request_info(conn)->request_method, "POST") != 0) {
+        return 405; // Method Not Allowed
+    }
+
+    const struct mg_request_info *ri = mg_get_request_info(conn);
+    int len = (int)ri->content_length;
+    if (len <= 0 || len > 256) len = 256;
+    std::vector<char> post_data(len + 1);
+    int n = mg_read(conn, post_data.data(), len);
+    post_data[n] = '\0';
+
+    char product_id_str[32] = {0}, participant[128] = {0};
+    mg_get_var(post_data.data(), n, "product_id", product_id_str, sizeof(product_id_str));
+    mg_get_var(post_data.data(), n, "participant", participant, sizeof(participant));
+
+    if (strlen(product_id_str) == 0 || strlen(participant) == 0) {
+        mg_printf(conn, "HTTP/1.1 400 Bad Request\r\n\r\nMissing product_id or participant.");
+        return 400;
+    }
+
+    sqlite3 *db = safe_open(PRODUCTS_DB_PATH);
+    if (!db) {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
+        return 500;
+    }
+
+    sqlite3_stmt *stmt = nullptr;
+    // This query deletes messages between the specific user ('participant') and 'Admin'
+    // for a specific 'product_id'.
+    const char *sql = "DELETE FROM messages WHERE product_id = ? AND "
+                      "((sender = ? AND receiver = 'Admin') OR (sender = 'Admin' AND receiver = ?));";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        fprintf(stderr, "Clear conversation prepare error: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nQuery failed");
+        return 500;
+    }
+
+    sqlite3_bind_int(stmt, 1, atoi(product_id_str));
+    sqlite3_bind_text(stmt, 2, participant, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, participant, -1, SQLITE_TRANSIENT);
+
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    if (rc == SQLITE_DONE) {
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+        return 200;
+    } else {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nClear failed.");
+        return 500;
+    }
+}, nullptr);
 
 mg_set_request_handler(ctx, "/api/get_current_user", [](mg_connection *conn, void *) -> int {
     std::string username = getUsernameFromCookie(conn);
