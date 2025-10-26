@@ -1,4 +1,3 @@
-#include "civetweb.h"
 #include "CivetServer.h"
 #include <unordered_set>
 #include <iostream>
@@ -22,7 +21,7 @@ extern "C" {
 #include <map> // Added by HEAD
 #include <sstream> // ✅ ADDED: Required for JSON escaping
 #include <iomanip> // ✅ ADDED: Required for JSON escaping
-
+#include "civetweb.h"
 // ✅ ADDED: Helper function to safely escape a string for JSON
 std::string escapeJsonString(const std::string& input) {
     if (input.empty()) {
@@ -864,96 +863,73 @@ mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerhome.html", [](mg_conne
     }
 
     // 🔹 Render HTML
-    mg_printf(conn,
-        "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-        "<!DOCTYPE html><html lang='en'><head>"
-        "<meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'/>"
-        "<title>Supplier Buyer Home</title>"
-        "<style>"
-        "body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:20px;}"
-        "h1{text-align:center;margin-bottom:20px;color:#222;}"
-        ".search-box{text-align:center;margin-bottom:15px;}"
-        ".search-box input{padding:8px;width:240px;border:1px solid #ccc;border-radius:5px;}"
-        ".tags-box{text-align:center;margin-bottom:25px;}"
-        ".tag{display:inline-block;background:#e8f4fc;color:#0077cc;padding:6px 10px;margin:4px;border-radius:5px;text-decoration:none;}"
-        ".tag:hover{background:#0077cc;color:white;}"
-        ".selected-tag{background:#0077cc;color:white;}"
-        ".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;max-width:1200px;margin:0 auto;}"
-        ".card{background:#fff;border-radius:10px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s;text-align:center;}"
-        ".card:hover{transform:translateY(-5px);}img{max-width:100%%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:10px;}"
-        ".price{font-size:18px;font-weight:bold;color:#00a6e1;margin-top:10px;}"
-        ".tags{margin-top:8px;font-size:13px;color:#666;}"
-        "</style></head><body>"
-        "<h1>All Products & Requests</h1>"
-        "<div class='search-box'>"
-        "<form method='GET' action='/supplierbuyer/supplierbuyerhome.html'>"
-        "<input type='text' name='search' placeholder='Search...' value='%s'>"
-        "<button type='submit'>Search</button>"
-        "</form></div>",
-        search
-    );
-
-    // 🔹 Tag filter display
-    mg_printf(conn, "<div class='tags-box'><b>Tags:</b><br>");
-    if (allTags.empty()) {
-        mg_printf(conn, "<p style='color:#999;'>No tags found.</p>");
-    } else {
-        for (const auto &t : allTags) {
-            mg_printf(conn,
-                "<a class='tag %s' href='/supplierbuyer/supplierbuyerhome.html?tag=%s'>#%s</a>",
-                (selectedTag == t ? "selected-tag" : ""),
-                t.c_str(), t.c_str());
-        }
-    }
-    mg_printf(conn,
+mg_printf(conn,
     "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
     "<!DOCTYPE html><html lang='en'><head>"
     "<meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'/>"
     "<title>Supplier Buyer Home</title>"
     "<style>"
     "body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;padding:0;}"
-    ".slider{position:relative;overflow:hidden;width:100%%;height:300px;margin-bottom:20px;}"
-    ".slides{display:flex;transition:transform 0.5s ease-in-out;width:100%%;height:100%%;}"
-    ".slide{min-width:100%%;height:100%%;}"
-    ".slide img{width:100%%;height:100%%;object-fit:cover;}"
-    ".nav-button{position:absolute;top:50%%;transform:translateY(-50%%);background:rgba(0,0,0,0.5);color:white;"
-    "border:none;padding:10px;cursor:pointer;border-radius:50%%;font-size:18px;}"
-    ".nav-button:hover{background:rgba(0,0,0,0.8);}"
-    ".prev{left:10px;}"
-    ".next{right:10px;}"
-    ".dot-container{text-align:center;position:absolute;bottom:10px;width:100%%;}"
-    ".dot{height:10px;width:10px;margin:0 4px;background-color:#bbb;border-radius:50%%;display:inline-block;cursor:pointer;}"
-    ".active-dot{background-color:#007bff;}"
+    "h1{text-align:center;margin:20px;color:#222;}"
+    ".navbar{display:flex;align-items:center;justify-content:space-between;"
+    "background-color:#0077cc;color:white;padding:12px 30px;box-shadow:0 2px 6px rgba(0,0,0,0.15);position:sticky;top:0;z-index:1000;}"
+    ".navbar .brand{font-size:20px;font-weight:bold;letter-spacing:1px;}"
+    ".navbar ul{list-style:none;margin:0;padding:0;display:flex;gap:25px;}"
+    ".navbar ul li{display:inline;}"
+    ".navbar ul li a{color:white;text-decoration:none;font-size:15px;transition:color 0.3s;}"
+    ".navbar ul li a:hover{color:#cce6ff;}"
+    ".container{display:flex;align-items:flex-start;max-width:1300px;margin:0 auto;padding:20px;gap:20px;}"
+    ".sidebar{width:22%%;background:#fff;border-radius:10px;padding:15px;box-shadow:0 2px 6px rgba(0,0,0,0.1);height:max-content;}"
+    ".tags-box b{display:block;margin-bottom:10px;color:#0077cc;font-size:16px;}"
+    ".tag{display:inline-block;background:#e8f4fc;color:#0077cc;padding:6px 10px;margin:4px;border-radius:5px;text-decoration:none;font-size:14px;}"
+    ".tag:hover{background:#0077cc;color:white;}"
+    ".selected-tag{background:#0077cc;color:white;}"
+    ".content{flex:1;}"
+    ".search-box{text-align:center;margin-bottom:20px;}"
+    ".search-box input{padding:8px;width:250px;border:1px solid #ccc;border-radius:5px;}"
+    ".grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;}"
+    ".card{background:#fff;border-radius:10px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s;text-align:center;}"
+    ".card:hover{transform:translateY(-5px);}img{max-width:100%%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:10px;}"
+    ".price{font-size:18px;font-weight:bold;color:#00a6e1;margin-top:10px;}"
+    ".tags{margin-top:8px;font-size:13px;color:#666;}"
     "</style></head><body>"
-    "<div class='slider'>"
-    "<div class='slides'>"
-    "<div class='slide'><img src='/uploads/slider1.jpg' alt='Slide 1'></div>"
-    "<div class='slide'><img src='/uploads/slider2.jpg' alt='Slide 2'></div>"
-    "<div class='slide'><img src='/uploads/slider3.jpg' alt='Slide 3'></div>"
+     /* 🔹 Navbar HTML */
+    "<div class='navbar'>"
+    "  <div class='brand'>SupplierBuyer</div>"
+    "  <ul>"
+    "    <li><a href='/supplierbuyer/supplierbuyerhome.html'>Home</a></li>"
+    "    <li><a href='/supplierbuyer/supplierbuyerdash.html'>My Products</a></li>"
+    "    <li><a href='/supplierbuyer/messageadmin.html'>Messages</a></li>"
+    "    <li><a href='/supplierbuyer/logout.html'>Logout</a></li>"
+    "  </ul>"
     "</div>"
-    "<button class='nav-button prev'>&#10094;</button>"
-    "<button class='nav-button next'>&#10095;</button>"
-    "<div class='dot-container'>"
-    "<span class='dot active-dot'></span>"
-    "<span class='dot'></span>"
-    "<span class='dot'></span>"
-    "</div>"
-    "</div>"
-    "<script>"
-    "let index=0;"
-    "const slides=document.querySelector('.slides');"
-    "const dots=document.querySelectorAll('.dot');"
-    "function showSlide(i){"
-    "  if(i>=dots.length) index=0;"
-    "  if(i<0) index=dots.length-1;"
-    "  slides.style.transform='translateX(' + (-index*100) + '%)';"
-    "  dots.forEach((d,j)=>d.classList.toggle('active-dot',j===index));"
-    "}"
-    "document.querySelector('.next').onclick=()=>{index++;showSlide(index);};"
-    "document.querySelector('.prev').onclick=()=>{index--;showSlide(index);};"
-    "dots.forEach((d,i)=>d.onclick=()=>{index=i;showSlide(index);});"
-    "setInterval(()=>{index++;showSlide(index);},4000);"
-    "</script>"
+    "<h1>All Products & Requests</h1>"
+    "<div class='search-box'>"
+    "<form method='GET' action='/supplierbuyer/supplierbuyerhome.html'>"
+    "<input type='text' name='search' placeholder='Search...' value='%s'>"
+    "<button type='submit'>Search</button>"
+    "</form></div>"
+    "<div class='container'>"
+    "<div class='sidebar'><div class='tags-box'><b>Tags</b><br>",
+    search
+);
+
+// ✅ Tag display
+if (allTags.empty()) {
+    mg_printf(conn, "<p style='color:#999;'>No tags found.</p>");
+} else {
+    for (const auto &t : allTags) {
+        mg_printf(conn,
+            "<a class='tag %s' href='/supplierbuyer/supplierbuyerhome.html?tag=%s'>#%s</a>",
+            (selectedTag == t ? "selected-tag" : ""),
+            t.c_str(), t.c_str());
+    }
+}
+
+mg_printf(conn,
+    "</div></div>"  // close sidebar
+    "<div class='content'>" // start content area
+    "<div class='grid'>"
 );
 
     mg_printf(conn, "</div><div class='grid'>");
@@ -1004,6 +980,42 @@ mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerhome.html", [](mg_conne
     }
 
     mg_printf(conn, "</div></body></html>");
+    return 200;
+}, nullptr);
+
+
+mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
+    const mg_request_info *req_info = mg_get_request_info(conn); // ✅ correct way
+    std::string uri = req_info->local_uri; // e.g. /slider/1.png
+
+    // Map URI to actual Windows path
+    std::string filePath = "C:/Users/priva/OneDrive/Desktop/supplierbuyer" + uri;
+
+    FILE *fp = fopen(filePath.c_str(), "rb");
+    if (!fp) {
+        mg_printf(conn, "HTTP/1.1 404 Not Found\r\n\r\nFile not found");
+        return 404;
+    }
+
+    // Detect MIME type
+    const char *mime = "application/octet-stream";
+    size_t pos = filePath.find_last_of('.');
+    if (pos != std::string::npos) {
+        std::string ext = filePath.substr(pos + 1);
+        if (ext == "png") mime = "image/png";
+        else if (ext == "jpg" || ext == "jpeg") mime = "image/jpeg";
+        else if (ext == "gif") mime = "image/gif";
+    }
+
+    mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n", mime);
+
+    char buf[4096];
+    size_t bytes;
+    while ((bytes = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        mg_write(conn, buf, bytes);
+    }
+
+    fclose(fp);
     return 200;
 }, nullptr);
 
@@ -1478,23 +1490,40 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
     mg_set_request_handler(ctx, "/upload_product", [](mg_connection *conn, void *) -> int {
     mg_printf(conn,
         "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-        "<!DOCTYPE html><html><head><title>Upload Product</title></head><body>"
+        "<!DOCTYPE html>"
+        "<html><head>"
+        "<meta charset='UTF-8'>"
+        "<title>Upload Product</title>"
+        "<link rel='stylesheet' href='/supplierbuyer.css'>" // ✅ External CSS
+        "<style>"
+        "body{font-family:Arial;background:#f4f6f9;margin:0;padding:0;}"
+        ".container{max-width:600px;margin:50px auto;background:#fff;padding:30px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}"
+        "h1{text-align:center;color:#0077cc;margin-bottom:20px;}"
+        "input,textarea,select{width:100%%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;}"
+        "button{background:#0077cc;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;}"
+        "button:hover{background:#005fa3;}"
+        "label{font-weight:bold;color:#333;}"
+        "</style>"
+        "</head><body>"
+        "<div class='container'>"
         "<h1>Upload New Product</h1>"
         "<form method='POST' action='/save_product' enctype='multipart/form-data'>"
-        "Name: <input type='text' name='name' required/><br/>"
-        "Description: <textarea name='description'></textarea><br/>"
-        "Price: <input type='number' step='0.01' name='price' required/><br/>"
-        "Unit: <select name='priceUnits'>"
+        "<label>Name:</label><input type='text' name='name' required/><br/>"
+        "<label>Description:</label><textarea name='description'></textarea><br/>"
+        "<label>Price:</label><input type='number' step='0.01' name='price' required/><br/>"
+        "<label>Unit:</label><select name='priceUnits'>"
         "<option value='unit'>unit</option>"
         "<option value='packs'>packs</option>"
         "<option value='ton'>ton</option>"
         "<option value='gram'>gram</option>"
         "<option value='kilo'>kilo</option>"
         "</select><br/>"
-        "Tags (comma-separated): <input type='text' name='tags'/><br/>"
-        "Upload Image: <input type='file' name='image' accept='image/*' required/><br/>"
+        "<label>Tags (comma-separated):</label><input type='text' name='tags'/><br/>"
+        "<label>Upload Image:</label><input type='file' name='image' accept='image/*' required/><br/>"
         "<button type='submit'>Save</button>"
-        "</form></body></html>");
+        "</form>"
+        "<p style='text-align:center;margin-top:15px;'><a href='/supplierbuyer/supplierbuyerdash.html'>⬅ Back</a></p>"
+        "</div></body></html>");
     return 200;
 }, nullptr);
 
@@ -2041,6 +2070,7 @@ mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerdash.html", [](mg_conne
         "<a class='button' href='/supplierbuyer/supplierbuyerhome.html'>🏠 Home</a>"
         "<a class='button' href='/supplierbuyer/profileadmin.html'>Profile Admin</a>"
         "<a class='button' href='/request_product.html'>📦 Request Product</a>"
+        "<a class='button' href='/supplierbuyer/messageadmin.html'>Message Admin</a>"
         "</p>",
         currentUser.c_str()
     );
