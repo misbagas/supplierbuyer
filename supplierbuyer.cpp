@@ -1,4 +1,7 @@
 #include "CivetServer.h"
+#include <curl/curl.h>
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
 #include <unordered_set>
 #include <iostream>
 #include <string>
@@ -23,6 +26,16 @@ extern "C" {
 #include <iomanip> // ✅ ADDED: Required for JSON escaping
 #include "civetweb.h"
 // ✅ ADDED: Helper function to safely escape a string for JSON
+
+std::string current_date_string() {
+    time_t t = time(nullptr);
+    struct tm buf;
+    char str[20];
+    localtime_s(&buf, &t);
+    strftime(str, sizeof(str), "%Y-%m-%d", &buf);
+    return str;
+}
+
 std::string escapeJsonString(const std::string& input) {
     if (input.empty()) {
         return "";
@@ -132,48 +145,73 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
     }
 
     if (strcmp(ri->request_method, "POST") == 0) {
+        // --- 1. Read Post Data ---
         int len = (int)ri->content_length;
         if (len <= 0 || len > 4096) len = 4096;
         std::vector<char> post_data(len + 1);
         int n = mg_read(conn, post_data.data(), len);
         post_data[n] = '\0';
 
-        char username[128], password[128];
+        char username[128], password[128], question[256], answer[128];
         mg_get_var(post_data.data(), len, "username", username, sizeof(username));
         mg_get_var(post_data.data(), len, "password", password, sizeof(password));
-
-        char question[256], answer[128];
         mg_get_var(post_data.data(), len, "security_question", question, sizeof(question));
         mg_get_var(post_data.data(), len, "security_answer", answer, sizeof(answer));
 
-
         if (strlen(username) == 0 || strlen(password) == 0) {
-            mg_printf(conn,
-                "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/joinpage.html?error=emptyfields\r\n"
-                "Content-Length: 0\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/joinpage.html?error=empty\r\nContent-Length: 0\r\n\r\n");
             return 302;
         }
 
-        // ✅ Per-request DB connection
+        // --- 2. Open DB (One time) ---
         sqlite3 *db = safe_open(USERS_DB_PATH);
-if (!db) {
-    mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
-    return 500;  // only return error to client, server keeps alive
-}
+        if (!db) {
+            mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
+            return 500;
+        }
 
+        // --- 3. Check if user ALREADY exists in main 'users' table ---
+        sqlite3_stmt *check_stmt = nullptr;
+        if (sqlite3_prepare_v2(db, "SELECT 1 FROM users WHERE username=?;", -1, &check_stmt, nullptr) != SQLITE_OK) {
+            fprintf(stderr, "Prepare error (check users): %s\n", sqlite3_errmsg(db));
+            sqlite3_close(db); // Close on error
+            mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nCheck failed");
+            return 500;
+        }
+        sqlite3_bind_text(check_stmt, 1, username, -1, SQLITE_TRANSIENT);
+        
+        int check_rc = sqlite3_step(check_stmt);
+        sqlite3_finalize(check_stmt); // Finalize immediately after use
 
+        if (check_rc == SQLITE_ROW) {
+            sqlite3_close(db); // Close before redirect
+            mg_printf(conn,
+                "HTTP/1.1 302 Found\r\n"
+                "Location: /auth/joinpage.html?error=alreadyregistered\r\n"
+                "Content-Length: 0\r\n\r\n");
+            return 302;
+        }
+        // (If check_rc is SQLITE_DONE, user does not exist, so we continue)
+
+        // --- 4. Ensure 'pending_users' table exists ---
+        sqlite3_exec(db,
+            "CREATE TABLE IF NOT EXISTS pending_users ("
+            "username TEXT PRIMARY KEY, "
+            "password TEXT, "
+            "security_question TEXT, "
+            "security_answer TEXT);",
+            nullptr, nullptr, nullptr);
+
+        // --- 5. Insert into 'pending_users' ---
         sqlite3_stmt *stmt = nullptr;
-if (!db || sqlite3_prepare_v2(db,
-    "INSERT INTO users (username, password, security_question, security_answer) VALUES (?, ?, ?, ?);",
-    -1, &stmt, nullptr) 
-    != SQLITE_OK) {
-    if (db) fprintf(stderr, "Register prepare error: %s\n", sqlite3_errmsg(db));
-    if (db) sqlite3_close(db);
-    mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nPrepare failed");
-    return 500;
-}
-
+        const char* sql = "INSERT OR REPLACE INTO pending_users (username, password, security_question, security_answer) VALUES (?, ?, ?, ?);";
+        
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+            fprintf(stderr, "Prepare error (insert pending): %s\n", sqlite3_errmsg(db));
+            sqlite3_close(db); // Close on error
+            mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nPrepare failed");
+            return 500;
+        }
 
         sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, password, -1, SQLITE_TRANSIENT);
@@ -181,28 +219,94 @@ if (!db || sqlite3_prepare_v2(db,
         sqlite3_bind_text(stmt, 4, answer, -1, SQLITE_TRANSIENT);
 
         int rc = sqlite3_step(stmt);
-        sqlite3_finalize(stmt);
-        sqlite3_close(db);
-
+        
+        // --- 6. Handle result and close DB ---
         if (rc == SQLITE_DONE) {
-            // Auto login
-            std::string sid = generateSessionId();
-            sessions[sid] = username;
+            // Success! Redirect to payment.
+            sqlite3_finalize(stmt);
+            sqlite3_close(db); // Close DB before redirecting
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Set-Cookie: session_id=%s; HttpOnly; Path=/\r\n"
-                "Location: /supplierbuyer/supplierbuyerdash.html\r\n"
-                "Content-Length: 0\r\n\r\n",
-                sid.c_str());
+                "Location: https://nowpayments.io/payment/?iid=4491821266" // This is the "pay now"
+                "Content-Length: 0\r\n\r\n");
         } else {
+            // Failure. Log the error (db is still open, so errmsg works)
+            fprintf(stderr, "⚠️ handle_register: sqlite3_step failed: %s (code %d)\n", sqlite3_errmsg(db), rc);
+            sqlite3_finalize(stmt);
+            sqlite3_close(db); // Close DB before redirecting
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/joinpage.html?error=userexists\r\n"
+                "Location: /auth/joinpage.html?error=dberror\r\n"
                 "Content-Length: 0\r\n\r\n");
         }
         return 302;
     }
-    return 405;
+
+    return 405; // Method Not Allowed
+}
+
+static int handle_confirm_payment(struct mg_connection *conn, void *cbdata) {
+    const struct mg_request_info *ri = mg_get_request_info(conn);
+    char username[128] = "";
+
+    if (ri->query_string)
+        mg_get_var(ri->query_string, strlen(ri->query_string), "username", username, sizeof(username));
+
+    if (strlen(username) == 0) {
+        mg_printf(conn, "HTTP/1.1 400 Bad Request\r\n\r\nMissing username");
+        return 400;
+    }
+
+    sqlite3 *db = safe_open(USERS_DB_PATH);
+    if (!db) {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB unavailable");
+        return 500;
+    }
+
+    // Move user from pending_users -> users
+    const char *insertSQL =
+        "INSERT OR IGNORE INTO users (username, password, security_question, security_answer) "
+        "SELECT username, password, security_question, security_answer FROM pending_users WHERE username=?;";
+    sqlite3_stmt *stmt = nullptr;
+    sqlite3_prepare_v2(db, insertSQL, -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    // Delete from pending_users
+    sqlite3_prepare_v2(db, "DELETE FROM pending_users WHERE username=?;", -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    
+    // Calculate expiry (next month)
+
+    // Calculate expiry per second (1 second duration)
+time_t now = time(nullptr);
+sqlite3_int64 current_time = static_cast<sqlite3_int64>(now);
+sqlite3_int64 expiry_time = current_time + 1; // Add 1 second
+
+// Update subscriptions with per-second billing
+const char *subSQL =
+    "INSERT OR REPLACE INTO subscriptions (username, last_payment, expiry_date) VALUES (?, ?, ?);";
+if (sqlite3_prepare_v2(db, subSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+    fprintf(stderr, "Confirm payment (SUB) prepare error: %s\n", sqlite3_errmsg(db));
+    sqlite3_close(db);
+    mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 3");
+    return 500;
+}
+sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+sqlite3_bind_int64(stmt, 2, current_time);
+sqlite3_bind_int64(stmt, 3, expiry_time);
+sqlite3_step(stmt);
+sqlite3_finalize(stmt);
+sqlite3_close(db);
+
+mg_printf(conn,
+    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nActivated %s for 1 second billing period",
+    username);
+return 200;
 }
 
 
@@ -225,66 +329,60 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
         mg_get_var(post_data.data(), len, "username", username, sizeof(username));
         mg_get_var(post_data.data(), len, "password", password, sizeof(password));
 
-        if (strlen(username) == 0 || strlen(password) == 0) {
-            mg_printf(conn,
-                "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/loginpage.html?error=emptyfields\r\n"
-                "Content-Length: 0\r\n\r\n");
-            return 302;
-        }
-
-        // ✅ Per-request DB connection
         sqlite3 *db = safe_open(USERS_DB_PATH);
-if (!db) {
-    mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
-    return 500;  // only return error to client, server keeps alive
-}
-
-
-        sqlite3_stmt *stmt = nullptr;
-        if (sqlite3_prepare_v2(db,
-            "SELECT password FROM users WHERE username=?;",
-            -1, &stmt, nullptr) != SQLITE_OK) {
-            fprintf(stderr, "Login prepare error: %s\n", sqlite3_errmsg(db));
-            sqlite3_close(db);
-            mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nQuery failed");
+        if (!db) {
+            mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB unavailable");
             return 500;
         }
 
+        sqlite3_stmt *stmt = nullptr;
+        sqlite3_prepare_v2(db, "SELECT password FROM users WHERE username=?;", -1, &stmt, nullptr);
         sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
 
-        int rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-            const char *storedPass = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            const char *storedPass = (const char*)sqlite3_column_text(stmt, 0);
             if (storedPass && strcmp(storedPass, password) == 0) {
+                // Check subscription
+                sqlite3_stmt *substmt = nullptr;
+                sqlite3_prepare_v2(db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &substmt, nullptr);
+                sqlite3_bind_text(substmt, 1, username, -1, SQLITE_TRANSIENT);
+
+                int hasSub = (sqlite3_step(substmt) == SQLITE_ROW);
+                sqlite3_int64 expiry_time = hasSub ? sqlite3_column_int64(substmt, 0) : 0;
+time_t now = time(nullptr);
+
+if (!hasSub || expiry_time <= static_cast<sqlite3_int64>(now)) {
+    // Expired or missing subscription — redirect to billing
+    mg_printf(conn,
+        "HTTP/1.1 302 Found\r\n"
+        "Location: https://nowpayments.io/payment/?iid=4491821266"
+        "Content-Length: 0\r\n\r\n");
+    sqlite3_finalize(substmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return 302;
+}
+
+                sqlite3_finalize(substmt);
                 std::string sid = generateSessionId();
                 sessions[sid] = username;
                 mg_printf(conn,
-                    "HTTP/1.1 302 Found\r\n"
-                    "Set-Cookie: session_id=%s; HttpOnly; Path=/\r\n"
-                    "Location: /supplierbuyer/supplierbuyerdash.html\r\n"
-                    "Content-Length: 0\r\n\r\n",
+                    "HTTP/1.1 302 Found\r\nSet-Cookie: session_id=%s; HttpOnly; Path=/\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n",
                     sid.c_str());
             } else {
-                mg_printf(conn,
-                    "HTTP/1.1 302 Found\r\n"
-                    "Location: /auth/loginpage.html?error=invalid\r\n"
-                    "Content-Length: 0\r\n\r\n");
+                mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
             }
         } else {
-            mg_printf(conn,
-                "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/loginpage.html?error=usernotfound\r\n"
-                "Content-Length: 0\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/loginpage.html?error=usernotfound\r\nContent-Length: 0\r\n\r\n");
         }
 
         sqlite3_finalize(stmt);
         sqlite3_close(db);
         return 302;
     }
+
     return 405;
 }
-
 
 int handle_admin(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *req_info = mg_get_request_info(conn);
@@ -382,6 +480,19 @@ int main() {
     fprintf(stderr, "⚠️ Warning: Cannot open users database: %s\n", sqlite3_errmsg(usersDb));
     usersDb = nullptr; // mark as unavailable
 } else {
+
+sqlite3 *subdb = nullptr;
+if (sqlite3_open(USERS_DB_PATH, &subdb) == SQLITE_OK) {
+    sqlite3_exec(subdb,
+        "CREATE TABLE IF NOT EXISTS subscriptions ("
+        "username TEXT PRIMARY KEY,"
+        "last_payment INTEGER,"
+        "expiry_date INTEGER);",
+        nullptr, nullptr, nullptr);
+    sqlite3_close(subdb);
+}
+
+
 sqlite3_exec(usersDb,
     "CREATE TABLE IF NOT EXISTS users ("
     "username TEXT PRIMARY KEY, "
@@ -394,6 +505,8 @@ sqlite3_exec(usersDb,
     usersDb = nullptr;
 
 }
+
+
 
 
 
@@ -468,6 +581,14 @@ sqlite3_exec(reqdb,
     sqlite3_close(reqdb);
 
 }
+sqlite3_exec(usersDb,
+    "CREATE TABLE IF NOT EXISTS pending_users ("
+    "username TEXT PRIMARY KEY, "
+    "password TEXT, "
+    "security_question TEXT, "
+    "security_answer TEXT);",
+    nullptr, nullptr, nullptr);
+
 
 sqlite3_exec(pdb,
     "CREATE TABLE IF NOT EXISTS messages ("
@@ -777,6 +898,47 @@ mg_set_request_handler(ctx, "/api/products", [](mg_connection *conn, void *) -> 
 mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerhome.html", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
 
+    std::string currentUser = getUsernameFromCookie(conn);
+if (currentUser.empty()) {
+    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /login\r\n\r\n");
+    return 302;
+}
+
+// --- BILLING CHECK ---
+sqlite3 *billing_db = safe_open(USERS_DB_PATH);
+sqlite3_stmt *billing_stmt = nullptr;
+sqlite3_prepare_v2(billing_db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &billing_stmt, nullptr);
+sqlite3_bind_text(billing_stmt, 1, currentUser.c_str(), -1, SQLITE_TRANSIENT);
+if (sqlite3_step(billing_stmt) == SQLITE_ROW) {
+    const char *expiry = (const char *)sqlite3_column_text(billing_stmt, 0);
+        // Get current date string in YYYY-MM-DD format
+        auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
+        std::tm local_tm;
+    #ifdef _WIN32
+        localtime_s(&local_tm, &tt);
+    #else
+        localtime_r(&tt, &local_tm);
+    #endif
+        char date_string[11];
+        strftime(date_string, sizeof(date_string), "%Y-%m-%d", &local_tm);
+        
+        if (!expiry || std::string(expiry) < std::string(date_string)) {
+        sqlite3_finalize(billing_stmt);
+        sqlite3_close(billing_db);
+        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
+        return 302;
+    }
+} else {
+    // no record = must pay first
+    sqlite3_finalize(billing_stmt);
+    sqlite3_close(billing_db);
+    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
+    return 302;
+}
+sqlite3_finalize(billing_stmt);
+sqlite3_close(billing_db);
+
     char search[256] = {0};
     char tag[128] = {0};
     if (ri->query_string) {
@@ -1018,6 +1180,85 @@ mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
     fclose(fp);
     return 200;
 }, nullptr);
+
+// ✅ REPLACED: This handler was broken (used sqlite3_exec with placeholders)
+// It's now fixed using prepared statements and includes the DELETE step.
+mg_set_request_handler(ctx, "/api/confirm_payment", [](mg_connection *conn, void *) -> int {
+    const mg_request_info *ri = mg_get_request_info(conn);
+    char username[128] = "";
+
+    if (ri->query_string)
+        mg_get_var(ri->query_string, strlen(ri->query_string), "username", username, sizeof(username));
+
+    if (strlen(username) == 0) {
+        mg_printf(conn, "HTTP/1.1 400 Bad Request\r\n\r\nMissing username");
+        return 400;
+    }
+
+    sqlite3 *db = safe_open(USERS_DB_PATH);
+    if (!db) {
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB unavailable");
+        return 500;
+    }
+
+    // 1. Move user from pending_users -> users
+    const char *insertSQL =
+        "INSERT OR IGNORE INTO users (username, password, security_question, security_answer) "
+        "SELECT username, password, security_question, security_answer FROM pending_users WHERE username=?;";
+    sqlite3_stmt *stmt = nullptr;
+    if (sqlite3_prepare_v2(db, insertSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+         fprintf(stderr, "Confirm payment (INSERT) prepare error: %s\n", sqlite3_errmsg(db));
+         sqlite3_close(db);
+         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 1");
+         return 500;
+    }
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    // 2. Delete from pending_users
+    if (sqlite3_prepare_v2(db, "DELETE FROM pending_users WHERE username=?;", -1, &stmt, nullptr) != SQLITE_OK) {
+         fprintf(stderr, "Confirm payment (DELETE) prepare error: %s\n", sqlite3_errmsg(db));
+         sqlite3_close(db);
+         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 2");
+         return 500;
+    }
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+
+    // 3. Calculate expiry (next month)
+    time_t now = time(nullptr);
+    struct tm nextMonth;
+#ifdef _WIN32
+    localtime_s(&nextMonth, &now);
+#else
+    localtime_r(&now, &nextMonth);
+#endif
+    nextMonth.tm_mon += 1;
+    mktime(&nextMonth);
+    char expiry[20];
+    strftime(expiry, sizeof(expiry), "%Y-%m-%d", &nextMonth);
+
+    // 4. Update subscriptions
+    const char *subSQL =
+        "INSERT OR REPLACE INTO subscriptions (username, last_payment, expiry_date) VALUES (?, date('now'), ?);";
+    if (sqlite3_prepare_v2(db, subSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+         fprintf(stderr, "Confirm payment (SUB) prepare error: %s\n", sqlite3_errmsg(db));
+         sqlite3_close(db);
+         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 3");
+         return 500;
+    }
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, expiry, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nActivated %s until %s", username, expiry);
+    return 200;
+}, nullptr);
+
 
 
 mg_set_request_handler(ctx, "/request_detail", [](mg_connection *conn, void *) -> int {
@@ -2043,6 +2284,39 @@ mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerdash.html", [](mg_conne
         sqlite3_close(db);
         return 302;
     }
+
+    // --- Monthly Billing Check ---
+sqlite3 *billing_db = safe_open(USERS_DB_PATH);
+sqlite3_stmt *billing_stmt = nullptr;
+sqlite3_prepare_v2(billing_db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &billing_stmt, nullptr);
+sqlite3_bind_text(billing_stmt, 1, currentUser.c_str(), -1, SQLITE_TRANSIENT);
+if (sqlite3_step(billing_stmt) == SQLITE_ROW) {
+    const char *expiry = (const char *)sqlite3_column_text(billing_stmt, 0);
+    auto now = std::chrono::system_clock::now();
+    auto tt = std::chrono::system_clock::to_time_t(now);
+    std::tm local_tm;
+#ifdef _WIN32
+    localtime_s(&local_tm, &tt);
+#else
+    localtime_r(&tt, &local_tm);
+#endif
+    char date_string[11];
+    strftime(date_string, sizeof(date_string), "%Y-%m-%d", &local_tm);
+    if (!expiry || std::string(expiry) < std::string(date_string)) {
+        sqlite3_finalize(billing_stmt);
+        sqlite3_close(billing_db);
+        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
+        return 302;
+    }
+} else {
+    sqlite3_finalize(billing_stmt);
+    sqlite3_close(billing_db);
+    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
+    return 302;
+}
+sqlite3_finalize(billing_stmt);
+sqlite3_close(billing_db);
+
 
     // --- Start response ---
     mg_printf(conn,
