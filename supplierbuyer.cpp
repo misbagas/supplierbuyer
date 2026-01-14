@@ -29,12 +29,19 @@ extern "C" {
 
 std::string current_date_string() {
     time_t t = time(nullptr);
-    struct tm buf;
-    char str[20];
+    tm buf{};
+
+#ifdef _WIN32
     localtime_s(&buf, &t);
-    strftime(str, sizeof(str), "%Y-%m-%d", &buf);
+#else
+    localtime_r(&t, &buf);
+#endif
+
+    char str[64];
+    strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", &buf);
     return str;
 }
+
 
 std::string escapeJsonString(const std::string& input) {
     if (input.empty()) {
@@ -123,8 +130,8 @@ std::string getUsernameFromCookie(mg_connection *conn) {
 
 
 sqlite3 *usersDb = nullptr; 
-const char *USERS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer.db";
-const char *PRODUCTS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/products.db";
+const char *USERS_DB_PATH = "supplierbuyer.db";
+const char *PRODUCTS_DB_PATH = "products.db";
 volatile sig_atomic_t running = 1;
 // ---------------- Signal Handler ----------------
 void signal_handler(int) {
@@ -140,7 +147,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
+        mg_send_file(conn, "auth/joinpage.html");
         return 200;
     }
 
@@ -318,7 +325,7 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
+        mg_send_file(conn, "auth/loginpage.html");
         return 200;
     }
 
@@ -453,13 +460,13 @@ bool parseMultipart(struct mg_connection *conn,
 
 int main() {
 const char *options[] = {
-    "document_root", "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer",
+    "document_root", ".",
     "listening_ports", "8080",
     "enable_directory_listing", "no",
     "extra_mime_types", ".js=application/javascript,.css=text/css,.jpg=image/jpeg,.png=image/png",
     
     // CORRECT WAY: All filenames in ONE string separated by commas
-    "index_files", "supplierbuyer.html,joinpage.html,adminpage.html", 
+    "index_files", "supplierbuyer/supplierbuyer.html,joinpage.html,adminpage.html", 
     
     "max_request_size", "524288000", 
     0 // Terminator
@@ -634,12 +641,12 @@ if (sqlite3_open(PRODUCTS_DB_PATH, &adb) == SQLITE_OK) {
 
         // Optionally, serve the HTML pages directly if requested
         mg_set_request_handler(ctx, "/auth/loginpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
+            mg_send_file(conn, "auth/loginpage.html");
             return 200;
         }, nullptr);
 
         mg_set_request_handler(ctx, "/auth/joinpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
+            mg_send_file(conn, "auth/joinpage.html");
             return 200;
         }, nullptr);
 
@@ -1124,7 +1131,7 @@ mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
     std::string uri = req_info->local_uri; // e.g. /slider/1.png
 
     // Map URI to actual Windows path
-    std::string filePath = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer" + uri;
+    std::string filePath = "" + uri;
 
     FILE *fp = fopen(filePath.c_str(), "rb");
     if (!fp) {
@@ -1410,7 +1417,7 @@ mg_set_request_handler(ctx, "/product_detail", [](mg_connection *conn, void *) -
 }, nullptr);
 
 mg_set_request_handler(ctx, "/message_feature.html", [](mg_connection *conn, void *) -> int {
-    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/message_feature.html");
+    mg_send_file(conn, "supplierbuyer/message_feature.html");
     return 200;
 }, nullptr);
 
@@ -1653,7 +1660,7 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
     int product_id = atoi(product_id_str);
 
     // 2. Database connection and insertion
-    const char *PRODUCTS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/products.db";
+    const char *PRODUCTS_DB_PATH = "products.db";
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH); // Assuming 'safe_open' is defined in your code
     if (!db) {
         fprintf(stderr, "Error: Database unavailable at %s\n", PRODUCTS_DB_PATH);
@@ -1697,7 +1704,7 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
 
     // --- Web request handlers ---
     mg_set_request_handler(ctx, "/supplierbuyer.css", [](mg_connection *conn, void *) -> int {
-        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.css");
+        mg_send_file(conn, "supplierbuyer/supplierbuyer.css");
         return 200;
     }, nullptr);
 
@@ -1985,7 +1992,7 @@ mg_set_request_handler(ctx, "/reset_password", [](mg_connection *conn, void *) -
     const mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/resetpassword.html");
+        mg_send_file(conn, "auth/resetpassword.html");
         return 200;
     }
 
@@ -2224,7 +2231,7 @@ mg_set_request_handler(ctx, "/update_product", [](mg_connection *conn, void *) -
     mg_set_request_handler(ctx, "/", [](mg_connection *conn, void *) -> int {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         if (strcmp(ri->local_uri, "/") == 0) {
-            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.html");
+            mg_send_file(conn, "supplierbuyer/supplierbuyer.html");
             return 200;
         }
         return 0;
@@ -2232,12 +2239,12 @@ mg_set_request_handler(ctx, "/update_product", [](mg_connection *conn, void *) -
 
     mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyer/supplierbuyerproduct.html",
                            [](mg_connection *conn, void *) -> int {
-                               mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerproduct.html");
+                               mg_send_file(conn, "supplierbuyer/supplierbuyerproduct.html");
                                return 200;
                            }, nullptr);
 
     mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerdash.css", [](mg_connection *conn, void *) -> int {
-        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerdash.css");
+        mg_send_file(conn, "supplierbuyer/supplierbuyerdash.css");
         return 200;
     }, nullptr);
 
@@ -2489,7 +2496,7 @@ mg_set_request_handler(ctx, "/logout", [](mg_connection *conn, void *) -> int {
 mg_set_request_handler(ctx, "/supplierbuyer/profileadmin.html",
     [](mg_connection *conn, void *) -> int {
         mg_send_file(conn,
-            "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\supplierbuyer\\profileadmin.html");
+            "supplierbuyer/profileadmin.html");
         return 200;
     }, nullptr);
 
@@ -2551,7 +2558,7 @@ mg_set_request_handler(ctx, "/supplierbuyer/profileadmin.html",
         sqlite3_finalize(stmt);
 
         if (result == SQLITE_DONE && !image_path_str.empty()) {
-            std::string full_path = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer" + image_path_str;
+            std::string full_path = "" + image_path_str;
             
             if (std::remove(full_path.c_str()) != 0) {
                  printf("Error deleting file: %s\n", full_path.c_str());
@@ -2882,17 +2889,17 @@ mg_set_request_handler(ctx, "/product", [](mg_connection *conn, void *) -> int {
 
 mg_set_request_handler(ctx, "/supplierbuyer/messageadmin.html", [](mg_connection *conn, void *) -> int {
     // This line serves the correct file you've been editing
-    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/messageadmin.html");
+    mg_send_file(conn, "supplierbuyer/messageadmin.html");
     return 200;
 }, nullptr);
 
 mg_set_request_handler(ctx, "/supplierbuyer/contactpage.html", [](mg_connection *conn, void *) -> int {
-    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/contactpage.html");
+    mg_send_file(conn, "supplierbuyer/contactpage.html");
     return 200;
 }, nullptr);
 
 mg_set_request_handler(ctx, "/contactpage.html", [](mg_connection *conn, void *) -> int {
-    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/contactpage.html");
+    mg_send_file(conn, "supplierbuyer/contactpage.html");
     return 200;
 }, nullptr);
 
