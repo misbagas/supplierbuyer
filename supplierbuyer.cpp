@@ -123,8 +123,8 @@ std::string getUsernameFromCookie(mg_connection *conn) {
 
 
 sqlite3 *usersDb = nullptr; 
-const char *USERS_DB_PATH = "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer.db";
-const char *PRODUCTS_DB_PATH = "C:/Users/priva/OneDrive/Desktop/supplierbuyer/products.db";
+const char *USERS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer.db";
+const char *PRODUCTS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/products.db";
 volatile sig_atomic_t running = 1;
 // ---------------- Signal Handler ----------------
 void signal_handler(int) {
@@ -140,7 +140,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
+        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
         return 200;
     }
 
@@ -222,12 +222,12 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
         
         // --- 6. Handle result and close DB ---
         if (rc == SQLITE_DONE) {
-            // Success! Redirect to payment.
+            // Success! Redirect to login.
             sqlite3_finalize(stmt);
             sqlite3_close(db); // Close DB before redirecting
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Location: https://nowpayments.io/payment/?iid=4491821266" // This is the "pay now"
+                "Location: /login\r\n" // Redirect to login
                 "Content-Length: 0\r\n\r\n");
         } else {
             // Failure. Log the error (db is still open, so errmsg works)
@@ -279,34 +279,38 @@ static int handle_confirm_payment(struct mg_connection *conn, void *cbdata) {
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 
-    
     // Calculate expiry (next month)
+    time_t now = time(nullptr);
+    struct tm nextMonth;
+#ifdef _WIN32
+    localtime_s(&nextMonth, &now);
+#else
+    localtime_r(&now, &nextMonth);
+#endif
+    nextMonth.tm_mon += 1;
+    mktime(&nextMonth);
+    char expiry[20];
+    strftime(expiry, sizeof(expiry), "%Y-%m-%d", &nextMonth);
 
-    // Calculate expiry per second (1 second duration)
-time_t now = time(nullptr);
-sqlite3_int64 current_time = static_cast<sqlite3_int64>(now);
-sqlite3_int64 expiry_time = current_time + 1; // Add 1 second
-
-// Update subscriptions with per-second billing
-const char *subSQL =
-    "INSERT OR REPLACE INTO subscriptions (username, last_payment, expiry_date) VALUES (?, ?, ?);";
-if (sqlite3_prepare_v2(db, subSQL, -1, &stmt, nullptr) != SQLITE_OK) {
-    fprintf(stderr, "Confirm payment (SUB) prepare error: %s\n", sqlite3_errmsg(db));
+    // Update subscriptions
+    const char *subSQL =
+        "INSERT OR REPLACE INTO subscriptions (username, last_payment, expiry_date) VALUES (?, date('now'), ?);";
+    if (sqlite3_prepare_v2(db, subSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+        fprintf(stderr, "Confirm payment (SUB) prepare error: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 3");
+        return 500;
+    }
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, expiry, -1, SQLITE_TRANSIENT);
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
-    mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDB error 3");
-    return 500;
-}
-sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
-sqlite3_bind_int64(stmt, 2, current_time);
-sqlite3_bind_int64(stmt, 3, expiry_time);
-sqlite3_step(stmt);
-sqlite3_finalize(stmt);
-sqlite3_close(db);
 
-mg_printf(conn,
-    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nActivated %s for 1 second billing period",
-    username);
-return 200;
+    mg_printf(conn,
+        "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nActivated %s for 1 month billing period",
+        username);
+    return 200;
 }
 
 
@@ -314,7 +318,7 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
+        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
         return 200;
     }
 
@@ -342,28 +346,6 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
             const char *storedPass = (const char*)sqlite3_column_text(stmt, 0);
             if (storedPass && strcmp(storedPass, password) == 0) {
-                // Check subscription
-                sqlite3_stmt *substmt = nullptr;
-                sqlite3_prepare_v2(db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &substmt, nullptr);
-                sqlite3_bind_text(substmt, 1, username, -1, SQLITE_TRANSIENT);
-
-                int hasSub = (sqlite3_step(substmt) == SQLITE_ROW);
-                sqlite3_int64 expiry_time = hasSub ? sqlite3_column_int64(substmt, 0) : 0;
-time_t now = time(nullptr);
-
-if (!hasSub || expiry_time <= static_cast<sqlite3_int64>(now)) {
-    // Expired or missing subscription — redirect to billing
-    mg_printf(conn,
-        "HTTP/1.1 302 Found\r\n"
-        "Location: https://nowpayments.io/payment/?iid=4491821266"
-        "Content-Length: 0\r\n\r\n");
-    sqlite3_finalize(substmt);
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-    return 302;
-}
-
-                sqlite3_finalize(substmt);
                 std::string sid = generateSessionId();
                 sessions[sid] = username;
                 mg_printf(conn,
@@ -449,7 +431,7 @@ bool parseMultipart(struct mg_connection *conn,
 
         if (!filename.empty()) {
             // save uploaded file
-            std::string uploadDir = "C:/Users/priva/OneDrive/Desktop/supplierbuyer/uploads/";
+            std::string uploadDir = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/uploads/";
 #ifdef _WIN32
             _mkdir(uploadDir.c_str());
 #else
@@ -470,16 +452,32 @@ bool parseMultipart(struct mg_connection *conn,
 }
 
 int main() {
+const char *options[] = {
+    "document_root", "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer",
+    "listening_ports", "8080",
+    "enable_directory_listing", "no",
+    "extra_mime_types", ".js=application/javascript,.css=text/css,.jpg=image/jpeg,.png=image/png",
     
-    // Register signal handler for graceful shutdown
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
+    // CORRECT WAY: All filenames in ONE string separated by commas
+    "index_files", "supplierbuyer.html,joinpage.html,adminpage.html", 
+    
+    "max_request_size", "524288000", 
+    0 // Terminator
+};
 
-    // Initialize databases   
-    if (sqlite3_open(USERS_DB_PATH, &usersDb) != SQLITE_OK) {
-    fprintf(stderr, "⚠️ Warning: Cannot open users database: %s\n", sqlite3_errmsg(usersDb));
-    usersDb = nullptr; // mark as unavailable
-} else {
+    mg_callbacks callbacks;
+    memset(&callbacks, 0, sizeof(callbacks));
+    callbacks.log_message = [](const struct mg_connection *, const char *msg) {
+        printf("CivetWeb log: %s\n", msg);
+        return 0;
+    };
+printf("Server successfully started on http://localhost:8080\n");
+mg_context *ctx = mg_start(&callbacks, nullptr, options);
+if (!ctx) {
+    fprintf(stderr, "⚠️ CivetWeb failed to start!\n");
+    ctx = nullptr; // keep running, but without HTTP service
+}
+else {
 
 sqlite3 *subdb = nullptr;
 if (sqlite3_open(USERS_DB_PATH, &subdb) == SQLITE_OK) {
@@ -626,28 +624,6 @@ if (sqlite3_open(PRODUCTS_DB_PATH, &adb) == SQLITE_OK) {
 }
 
 
-    const char *options[] = {
-        "document_root", "C:/Users/priva/OneDrive/Desktop/supplierbuyer",
-        "listening_ports", "8080",
-        "enable_directory_listing", "no",
-        "extra_mime_types", ".js=application/javascript,.css=text/css,.jpg=image/jpeg,.png=image/png",
-        "index_files", "supplierbuyer.html",
-        "max_request_size", "524288000", 
-        0
-    };
-
-    mg_callbacks callbacks;
-    memset(&callbacks, 0, sizeof(callbacks));
-    callbacks.log_message = [](const struct mg_connection *, const char *msg) {
-        printf("CivetWeb log: %s\n", msg);
-        return 0;
-    };
-
-mg_context *ctx = mg_start(&callbacks, nullptr, options);
-if (!ctx) {
-    fprintf(stderr, "⚠️ CivetWeb failed to start!\n");
-    ctx = nullptr; // keep running, but without HTTP service
-}
 
 
     if (ctx) {
@@ -658,12 +634,12 @@ if (!ctx) {
 
         // Optionally, serve the HTML pages directly if requested
         mg_set_request_handler(ctx, "/auth/loginpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
+            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/loginpage.html");
             return 200;
         }, nullptr);
 
         mg_set_request_handler(ctx, "/auth/joinpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
+            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/joinpage.html");
             return 200;
         }, nullptr);
 
@@ -723,7 +699,39 @@ mg_set_request_handler(ctx, "/submit_request", [](mg_connection *conn, void *) -
     return 303;
 }, nullptr);
 
-} // <-- This brace was misplaced, it should not close main() yet.
+mg_set_request_handler(ctx, "/submit_contact", [](mg_connection *conn, void *) -> int {
+    const struct mg_request_info *ri = mg_get_request_info(conn);
+    if (strcmp(ri->request_method, "POST") != 0) {
+        mg_printf(conn, "HTTP/1.1 405 Method Not Allowed\r\n\r\n");
+        return 405;
+    }
+
+    int len = ri->content_length;
+    if (len <= 0 || len > 4096) len = 4096;
+    std::vector<char> post_data(len + 1);
+    mg_read(conn, post_data.data(), len);
+    post_data[len] = '\0';
+
+    char name[256] = {0}, email[256] = {0}, subject[256] = {0}, message[1024] = {0};
+    mg_get_var(post_data.data(), len, "name", name, sizeof(name));
+    mg_get_var(post_data.data(), len, "email", email, sizeof(email));
+    mg_get_var(post_data.data(), len, "subject", subject, sizeof(subject));
+    mg_get_var(post_data.data(), len, "message", message, sizeof(message));
+
+    // For now, just log and respond
+    printf("Contact form: Name=%s, Email=%s, Subject=%s, Message=%s\n", name, email, subject, message);
+
+    mg_printf(conn,
+        "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+        "<!DOCTYPE html><html><head><title>Thank You</title></head><body>"
+        "<h1>Thank You for Contacting Us!</h1>"
+        "<p>We have received your message and will get back to you soon.</p>"
+        "<a href='/supplierbuyer/contactpage.html'>Back to Contact</a>"
+        "</body></html>");
+    return 200;
+}, nullptr);
+
+ // <-- This brace was misplaced, it should not close main() yet.
   // It was closing the `if (ctx)` block, which I will continue adding handlers to.
 
 
@@ -903,41 +911,6 @@ if (currentUser.empty()) {
     mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /login\r\n\r\n");
     return 302;
 }
-
-// --- BILLING CHECK ---
-sqlite3 *billing_db = safe_open(USERS_DB_PATH);
-sqlite3_stmt *billing_stmt = nullptr;
-sqlite3_prepare_v2(billing_db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &billing_stmt, nullptr);
-sqlite3_bind_text(billing_stmt, 1, currentUser.c_str(), -1, SQLITE_TRANSIENT);
-if (sqlite3_step(billing_stmt) == SQLITE_ROW) {
-    const char *expiry = (const char *)sqlite3_column_text(billing_stmt, 0);
-        // Get current date string in YYYY-MM-DD format
-        auto now = std::chrono::system_clock::now();
-        auto tt = std::chrono::system_clock::to_time_t(now);
-        std::tm local_tm;
-    #ifdef _WIN32
-        localtime_s(&local_tm, &tt);
-    #else
-        localtime_r(&tt, &local_tm);
-    #endif
-        char date_string[11];
-        strftime(date_string, sizeof(date_string), "%Y-%m-%d", &local_tm);
-        
-        if (!expiry || std::string(expiry) < std::string(date_string)) {
-        sqlite3_finalize(billing_stmt);
-        sqlite3_close(billing_db);
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
-        return 302;
-    }
-} else {
-    // no record = must pay first
-    sqlite3_finalize(billing_stmt);
-    sqlite3_close(billing_db);
-    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
-    return 302;
-}
-sqlite3_finalize(billing_stmt);
-sqlite3_close(billing_db);
 
     char search[256] = {0};
     char tag[128] = {0};
@@ -1151,7 +1124,7 @@ mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
     std::string uri = req_info->local_uri; // e.g. /slider/1.png
 
     // Map URI to actual Windows path
-    std::string filePath = "C:/Users/priva/OneDrive/Desktop/supplierbuyer" + uri;
+    std::string filePath = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer" + uri;
 
     FILE *fp = fopen(filePath.c_str(), "rb");
     if (!fp) {
@@ -1437,7 +1410,7 @@ mg_set_request_handler(ctx, "/product_detail", [](mg_connection *conn, void *) -
 }, nullptr);
 
 mg_set_request_handler(ctx, "/message_feature.html", [](mg_connection *conn, void *) -> int {
-    mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/message_feature.html");
+    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/message_feature.html");
     return 200;
 }, nullptr);
 
@@ -1680,7 +1653,7 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
     int product_id = atoi(product_id_str);
 
     // 2. Database connection and insertion
-    const char *PRODUCTS_DB_PATH = "C:/Users/priva/OneDrive/Desktop/supplierbuyer/products.db";
+    const char *PRODUCTS_DB_PATH = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/products.db";
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH); // Assuming 'safe_open' is defined in your code
     if (!db) {
         fprintf(stderr, "Error: Database unavailable at %s\n", PRODUCTS_DB_PATH);
@@ -1724,7 +1697,7 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
 
     // --- Web request handlers ---
     mg_set_request_handler(ctx, "/supplierbuyer.css", [](mg_connection *conn, void *) -> int {
-        mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.css");
+        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.css");
         return 200;
     }, nullptr);
 
@@ -2012,7 +1985,7 @@ mg_set_request_handler(ctx, "/reset_password", [](mg_connection *conn, void *) -
     const mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/auth/resetpassword.html");
+        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/auth/resetpassword.html");
         return 200;
     }
 
@@ -2251,7 +2224,7 @@ mg_set_request_handler(ctx, "/update_product", [](mg_connection *conn, void *) -
     mg_set_request_handler(ctx, "/", [](mg_connection *conn, void *) -> int {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         if (strcmp(ri->local_uri, "/") == 0) {
-            mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.html");
+            mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyer.html");
             return 200;
         }
         return 0;
@@ -2259,12 +2232,12 @@ mg_set_request_handler(ctx, "/update_product", [](mg_connection *conn, void *) -
 
     mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyer/supplierbuyerproduct.html",
                            [](mg_connection *conn, void *) -> int {
-                               mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerproduct.html");
+                               mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerproduct.html");
                                return 200;
                            }, nullptr);
 
     mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerdash.css", [](mg_connection *conn, void *) -> int {
-        mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerdash.css");
+        mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/supplierbuyerdash.css");
         return 200;
     }, nullptr);
 
@@ -2284,39 +2257,6 @@ mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerdash.html", [](mg_conne
         sqlite3_close(db);
         return 302;
     }
-
-    // --- Monthly Billing Check ---
-sqlite3 *billing_db = safe_open(USERS_DB_PATH);
-sqlite3_stmt *billing_stmt = nullptr;
-sqlite3_prepare_v2(billing_db, "SELECT expiry_date FROM subscriptions WHERE username=?;", -1, &billing_stmt, nullptr);
-sqlite3_bind_text(billing_stmt, 1, currentUser.c_str(), -1, SQLITE_TRANSIENT);
-if (sqlite3_step(billing_stmt) == SQLITE_ROW) {
-    const char *expiry = (const char *)sqlite3_column_text(billing_stmt, 0);
-    auto now = std::chrono::system_clock::now();
-    auto tt = std::chrono::system_clock::to_time_t(now);
-    std::tm local_tm;
-#ifdef _WIN32
-    localtime_s(&local_tm, &tt);
-#else
-    localtime_r(&tt, &local_tm);
-#endif
-    char date_string[11];
-    strftime(date_string, sizeof(date_string), "%Y-%m-%d", &local_tm);
-    if (!expiry || std::string(expiry) < std::string(date_string)) {
-        sqlite3_finalize(billing_stmt);
-        sqlite3_close(billing_db);
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
-        return 302;
-    }
-} else {
-    sqlite3_finalize(billing_stmt);
-    sqlite3_close(billing_db);
-    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: https://nowpayments.io/payment/?iid=4491821266\r\n\r\n");
-    return 302;
-}
-sqlite3_finalize(billing_stmt);
-sqlite3_close(billing_db);
-
 
     // --- Start response ---
     mg_printf(conn,
@@ -2549,7 +2489,7 @@ mg_set_request_handler(ctx, "/logout", [](mg_connection *conn, void *) -> int {
 mg_set_request_handler(ctx, "/supplierbuyer/profileadmin.html",
     [](mg_connection *conn, void *) -> int {
         mg_send_file(conn,
-            "C:\\Users\\priva\\OneDrive\\Desktop\\supplierbuyer\\supplierbuyer\\profileadmin.html");
+            "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\supplierbuyer\\profileadmin.html");
         return 200;
     }, nullptr);
 
@@ -2611,7 +2551,7 @@ mg_set_request_handler(ctx, "/supplierbuyer/profileadmin.html",
         sqlite3_finalize(stmt);
 
         if (result == SQLITE_DONE && !image_path_str.empty()) {
-            std::string full_path = "C:/Users/priva/OneDrive/Desktop/supplierbuyer" + image_path_str;
+            std::string full_path = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer" + image_path_str;
             
             if (std::remove(full_path.c_str()) != 0) {
                  printf("Error deleting file: %s\n", full_path.c_str());
@@ -2942,7 +2882,17 @@ mg_set_request_handler(ctx, "/product", [](mg_connection *conn, void *) -> int {
 
 mg_set_request_handler(ctx, "/supplierbuyer/messageadmin.html", [](mg_connection *conn, void *) -> int {
     // This line serves the correct file you've been editing
-    mg_send_file(conn, "C:/Users/priva/OneDrive/Desktop/supplierbuyer/supplierbuyer/messageadmin.html");
+    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/messageadmin.html");
+    return 200;
+}, nullptr);
+
+mg_set_request_handler(ctx, "/supplierbuyer/contactpage.html", [](mg_connection *conn, void *) -> int {
+    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/contactpage.html");
+    return 200;
+}, nullptr);
+
+mg_set_request_handler(ctx, "/contactpage.html", [](mg_connection *conn, void *) -> int {
+    mg_send_file(conn, "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/supplierbuyer/contactpage.html");
     return 200;
 }, nullptr);
 
@@ -3053,6 +3003,7 @@ mg_set_request_handler(ctx, "/edit_request", [](mg_connection *conn, void *) -> 
 
     return 200;
 }, nullptr);
+    }
 
     // Keep the server running until interrupted
     while (running) {
