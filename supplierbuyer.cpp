@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "CivetServer.h"
 #include <curl/curl.h>
 #include <openssl/hmac.h>
@@ -27,18 +28,30 @@ extern "C" {
 #include "civetweb.h"
 // ✅ ADDED: Helper function to safely escape a string for JSON
 
+void write_to_access_log(const struct mg_connection *conn) {
+    const struct mg_request_info *ri = mg_get_request_info(conn);
+    std::ofstream log_file("access.log", std::ios_base::app);
+    
+    // Get current time in [19/Jan/2026:10:56:00 +0000] format
+    time_t t = time(nullptr);
+    struct tm buf;
+    localtime_r(&t, &buf);
+    char time_str[100];
+    strftime(time_str, sizeof(time_str), "%d/%b/%Y:%H:%M:%S %z", &buf);
+
+    // Format: IP - - [Date] "Method URI HTTP/1.1" Status Size "-" "-"
+    // Note: In Tor, ri->remote_addr will likely be 127.0.0.1
+    log_file << ri->remote_addr << " - - [" << time_str << "] \"" 
+             << ri->request_method << " " << ri->local_uri << " HTTP/1.1\" " 
+             << "200 0 \"-\" \"-\"" << std::endl;
+}
+
 std::string current_date_string() {
     time_t t = time(nullptr);
-    tm buf{};
-
-#ifdef _WIN32
-    localtime_s(&buf, &t);
-#else
+    struct tm buf;
     localtime_r(&t, &buf);
-#endif
-
-    char str[64];
-    strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", &buf);
+    char str[20];
+    strftime(str, sizeof(str), "%Y-%m-%d", &buf);
     return str;
 }
 
@@ -477,6 +490,11 @@ const char *options[] = {
     callbacks.log_message = [](const struct mg_connection *, const char *msg) {
         printf("CivetWeb log: %s\n", msg);
         return 0;
+    };
+
+    callbacks.begin_request = [](struct mg_connection *conn) -> int {
+        write_to_access_log(conn);
+        return 0; // Let Civetweb continue handling the request
     };
 printf("Server successfully started on http://localhost:8080\n");
 mg_context *ctx = mg_start(&callbacks, nullptr, options);
