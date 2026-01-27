@@ -1,0 +1,4 @@
+127.0.0.1 - - [27/Jan/2026:19:32:13 SE Asia Standard Time] "GET / HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 200 0 "-" "-"

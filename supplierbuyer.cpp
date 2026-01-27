@@ -160,7 +160,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "auth/joinpage.html");
+        mg_send_file(conn, "/root/supplierbuyer/auth/joinpage.html");
         return 200;
     }
 
@@ -247,7 +247,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
             sqlite3_close(db); // Close DB before redirecting
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Location: /login\r\n" // Redirect to login
+                "Location: /root/supplierbuyer/login\r\n" // Redirect to login
                 "Content-Length: 0\r\n\r\n");
         } else {
             // Failure. Log the error (db is still open, so errmsg works)
@@ -338,7 +338,7 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
 
     if (strcmp(ri->request_method, "GET") == 0) {
-        mg_send_file(conn, "auth/loginpage.html");
+        mg_send_file(conn, "/root/supplierbuyer/auth/loginpage.html");
         return 200;
     }
 
@@ -473,13 +473,13 @@ bool parseMultipart(struct mg_connection *conn,
 
 int main() {
 const char *options[] = {
-    "document_root", "/root/supplierbuyer",
+    "document_root", "/",
     "listening_ports", "8080",
     "enable_directory_listing", "no",
     "extra_mime_types", ".js=application/javascript,.css=text/css,.jpg=image/jpeg,.png=image/png",
     
     // CORRECT WAY: All filenames in ONE string separated by commas
-    "index_files", "supplierbuyer/supplierbuyer.html,joinpage.html,adminpage.html", 
+    "index_files", "root/supplierbuyer/supplierbuyer/supplierbuyer.html,root/supplierbuyer/auth/joinpage.html,root/supplierbuyer/admin/adminpage.html", 
     "max_request_size", "524288000", 
     "access_log_file", "/root/supplierbuyer/access.log",
     0 // Terminator
@@ -654,23 +654,23 @@ if (sqlite3_open(PRODUCTS_DB_PATH, &adb) == SQLITE_OK) {
     if (ctx) {
 
 // Register login and register handlers
-        mg_set_request_handler(ctx, "/login", handle_login, nullptr);
-        mg_set_request_handler(ctx, "/register", handle_register, nullptr);
+        mg_set_request_handler(ctx, "/root/supplierbuyer/login", handle_login, nullptr);
+        mg_set_request_handler(ctx, "/root/supplierbuyer/register", handle_register, nullptr);
 
         // Optionally, serve the HTML pages directly if requested
-        mg_set_request_handler(ctx, "/auth/loginpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "auth/loginpage.html");
+        mg_set_request_handler(ctx, "/root/supplierbuyer/auth/loginpage.html", [](mg_connection *conn, void *) -> int {
+            mg_send_file(conn, "/root/supplierbuyer/auth/loginpage.html");
             return 200;
         }, nullptr);
 
-        mg_set_request_handler(ctx, "/auth/joinpage.html", [](mg_connection *conn, void *) -> int {
-            mg_send_file(conn, "auth/joinpage.html");
+        mg_set_request_handler(ctx, "/root/supplierbuyer/auth/joinpage.html", [](mg_connection *conn, void *) -> int {
+            mg_send_file(conn, "/root/supplierbuyer/auth/joinpage.html");
             return 200;
         }, nullptr);
 
 
 
-mg_set_request_handler(ctx, "/submit_request", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/submit_request", [](mg_connection *conn, void *) -> int {
     // Use parseMultipart to handle the form data and file upload
     std::map<std::string, std::string> fields;
     std::string imagePath;
@@ -724,7 +724,7 @@ mg_set_request_handler(ctx, "/submit_request", [](mg_connection *conn, void *) -
     return 303;
 }, nullptr);
 
-mg_set_request_handler(ctx, "/submit_contact", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/submit_contact", [](mg_connection *conn, void *) -> int {
     const struct mg_request_info *ri = mg_get_request_info(conn);
     if (strcmp(ri->request_method, "POST") != 0) {
         mg_printf(conn, "HTTP/1.1 405 Method Not Allowed\r\n\r\n");
@@ -760,7 +760,7 @@ mg_set_request_handler(ctx, "/submit_contact", [](mg_connection *conn, void *) -
   // It was closing the `if (ctx)` block, which I will continue adding handlers to.
 
 
-mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/api/messages", [](mg_connection *conn, void *) -> int {
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH);
     if (!db) {
         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
@@ -819,10 +819,10 @@ mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> 
 
 
 
-    mg_set_request_handler(ctx, "/admin", handle_admin, nullptr);
+    mg_set_request_handler(ctx, "/root/supplierbuyer/admin", handle_admin, nullptr);
 
 
-    mg_set_request_handler(ctx, "/api/product", [](mg_connection *conn, void *) -> int {
+    mg_set_request_handler(ctx, "/root/supplierbuyer/api/product", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
 
     char id_str[32] = {0};
@@ -873,7 +873,7 @@ mg_set_request_handler(ctx, "/api/messages", [](mg_connection *conn, void *) -> 
 }, nullptr);
 
 
-mg_set_request_handler(ctx, "/api/products", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/api/products", [](mg_connection *conn, void *) -> int {
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH);
     if (!db) {
         mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\n\r\nDatabase unavailable");
@@ -928,12 +928,12 @@ mg_set_request_handler(ctx, "/api/products", [](mg_connection *conn, void *) -> 
     return 200;
 }, nullptr);
 
-mg_set_request_handler(ctx, "/supplierbuyer/supplierbuyerhome.html", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/supplierbuyer/supplierbuyerhome.html", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
 
     std::string currentUser = getUsernameFromCookie(conn);
 if (currentUser.empty()) {
-    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /login\r\n\r\n");
+    mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /root/supplierbuyer/login\r\n\r\n");
     return 302;
 }
 
@@ -1107,7 +1107,7 @@ mg_printf(conn,
         const char *type = (const char*)sqlite3_column_text(stmt, 7);
 
         std::string imageUrl = (image && strlen(image) > 0)
-            ? image : "/uploads/noimage.png";
+            ? image : "/root/supplierbuyer/uploads/noimage.png";
 
         mg_printf(conn,
             "<div class='card'>"
@@ -1144,7 +1144,7 @@ mg_printf(conn,
 }, nullptr);
 
 
-mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/slider", [](mg_connection *conn, void *) -> int {
     const mg_request_info *req_info = mg_get_request_info(conn); // ✅ correct way
     std::string uri = req_info->local_uri; // e.g. /slider/1.png
 
@@ -1181,7 +1181,7 @@ mg_set_request_handler(ctx, "/slider", [](mg_connection *conn, void *) -> int {
 
 // ✅ REPLACED: This handler was broken (used sqlite3_exec with placeholders)
 // It's now fixed using prepared statements and includes the DELETE step.
-mg_set_request_handler(ctx, "/api/confirm_payment", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/api/confirm_payment", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
     char username[128] = "";
 
@@ -1259,7 +1259,7 @@ mg_set_request_handler(ctx, "/api/confirm_payment", [](mg_connection *conn, void
 
 
 
-mg_set_request_handler(ctx, "/request_detail", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/request_detail", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
 
     // --- get request id ---
@@ -1343,7 +1343,7 @@ mg_set_request_handler(ctx, "/request_detail", [](mg_connection *conn, void *) -
 }, nullptr);
 
 // MODIFIED: /product_detail handler to support styled chat view
-mg_set_request_handler(ctx, "/product_detail", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/product_detail", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
 
     char id_str[32] = {0};
@@ -1434,7 +1434,7 @@ mg_set_request_handler(ctx, "/product_detail", [](mg_connection *conn, void *) -
     return 200;
 }, nullptr);
 
-mg_set_request_handler(ctx, "/message_feature.html", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/message_feature.html", [](mg_connection *conn, void *) -> int {
     mg_send_file(conn, "supplierbuyer/message_feature.html");
     return 200;
 }, nullptr);
@@ -1446,7 +1446,7 @@ mg_set_request_handler(ctx, "/message_feature.html", [](mg_connection *conn, voi
 // ... inside main() ...
 
 // 🟢 MODIFIED: /api/conversation handler (to include message ID)
-mg_set_request_handler(ctx, "/api/conversation", [](mg_connection *conn, void *) -> int {
+mg_set_request_handler(ctx, "/root/supplierbuyer/api/conversation", [](mg_connection *conn, void *) -> int {
     const mg_request_info *ri = mg_get_request_info(conn);
     std::string currentUser = getUsernameFromCookie(conn);
 
@@ -1678,7 +1678,7 @@ mg_set_request_handler(ctx, "/send_message", [](mg_connection *conn, void *) -> 
     int product_id = atoi(product_id_str);
 
     // 2. Database connection and insertion
-    const char *PRODUCTS_DB_PATH = "products.db";
+    const char *PRODUCTS_DB_PATH = "/root/supplierbuyer/products.db";
     sqlite3 *db = safe_open(PRODUCTS_DB_PATH); // Assuming 'safe_open' is defined in your code
     if (!db) {
         fprintf(stderr, "Error: Database unavailable at %s\n", PRODUCTS_DB_PATH);
