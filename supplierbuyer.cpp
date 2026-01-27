@@ -30,7 +30,7 @@ extern "C" {
 
 void write_to_access_log(const struct mg_connection *conn) {
     const struct mg_request_info *ri = mg_get_request_info(conn);
-    std::ofstream log_file("access.log", std::ios_base::app);
+    std::ofstream log_file("/root/supplierbuyer/access.log", std::ios_base::app);
     
     // Get current time in [19/Jan/2026:10:56:00 +0000] format
     time_t t = time(nullptr);
@@ -143,8 +143,8 @@ std::string getUsernameFromCookie(mg_connection *conn) {
 
 
 sqlite3 *usersDb = nullptr; 
-const char *USERS_DB_PATH = "supplierbuyer.db";
-const char *PRODUCTS_DB_PATH = "products.db";
+const char *USERS_DB_PATH = "/root/supplierbuyer/supplierbuyer.db";
+const char *PRODUCTS_DB_PATH = "/root/supplierbuyer/products.db";
 volatile sig_atomic_t running = 1;
 // ---------------- Signal Handler ----------------
 void signal_handler(int) {
@@ -179,7 +179,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
         mg_get_var(post_data.data(), len, "security_answer", answer, sizeof(answer));
 
         if (strlen(username) == 0 || strlen(password) == 0) {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/joinpage.html?error=empty\r\nContent-Length: 0\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /root/supplierbuyer/auth/joinpage.html?error=empty\r\nContent-Length: 0\r\n\r\n");
             return 302;
         }
 
@@ -207,7 +207,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
             sqlite3_close(db); // Close before redirect
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/joinpage.html?error=alreadyregistered\r\n"
+                "Location: /root/supplierbuyer/auth/joinpage.html?error=alreadyregistered\r\n"
                 "Content-Length: 0\r\n\r\n");
             return 302;
         }
@@ -256,7 +256,7 @@ static int handle_register(struct mg_connection *conn, void *cbdata) {
             sqlite3_close(db); // Close DB before redirecting
             mg_printf(conn,
                 "HTTP/1.1 302 Found\r\n"
-                "Location: /auth/joinpage.html?error=dberror\r\n"
+                "Location: /root/supplierbuyer/auth/joinpage.html?error=dberror\r\n"
                 "Content-Length: 0\r\n\r\n");
         }
         return 302;
@@ -369,13 +369,13 @@ static int handle_login(struct mg_connection *conn, void *cbdata) {
                 std::string sid = generateSessionId();
                 sessions[sid] = username;
                 mg_printf(conn,
-                    "HTTP/1.1 302 Found\r\nSet-Cookie: session_id=%s; HttpOnly; Path=/\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n",
+                    "HTTP/1.1 302 Found\r\nSet-Cookie: session_id=%s; HttpOnly; Path=/\r\nLocation: /root/supplierbuyer/supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n",
                     sid.c_str());
             } else {
-                mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
+                mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /root/supplierbuyer/auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
             }
         } else {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /auth/loginpage.html?error=usernotfound\r\nContent-Length: 0\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /root/supplierbuyer/auth/loginpage.html?error=usernotfound\r\nContent-Length: 0\r\n\r\n");
         }
 
         sqlite3_finalize(stmt);
@@ -451,7 +451,7 @@ bool parseMultipart(struct mg_connection *conn,
 
         if (!filename.empty()) {
             // save uploaded file
-            std::string uploadDir = "C:/Users/Guntur/OneDrive/Desktop/supplierbuyer/uploads/";
+            std::string uploadDir = "/root/supplierbuyer/uploads/";
 #ifdef _WIN32
             _mkdir(uploadDir.c_str());
 #else
@@ -461,7 +461,7 @@ bool parseMultipart(struct mg_connection *conn,
             std::ofstream ofs(outPath, std::ios::binary);
             ofs.write(content.c_str(), content.size());
             ofs.close();
-            savedFilePath = "/uploads/" + filename;
+            savedFilePath = "/root/supplierbuyer/uploads/" + filename;
         } else if (!name.empty()) {
             fields[name] = content;
         }
@@ -473,15 +473,15 @@ bool parseMultipart(struct mg_connection *conn,
 
 int main() {
 const char *options[] = {
-    "document_root", ".",
+    "document_root", "/root/supplierbuyer",
     "listening_ports", "8080",
     "enable_directory_listing", "no",
     "extra_mime_types", ".js=application/javascript,.css=text/css,.jpg=image/jpeg,.png=image/png",
     
     // CORRECT WAY: All filenames in ONE string separated by commas
     "index_files", "supplierbuyer/supplierbuyer.html,joinpage.html,adminpage.html", 
-    
     "max_request_size", "524288000", 
+    "access_log_file", "/root/supplierbuyer/access.log",
     0 // Terminator
 };
 
@@ -719,7 +719,7 @@ mg_set_request_handler(ctx, "/submit_request", [](mg_connection *conn, void *) -
 
     mg_printf(conn,
         "HTTP/1.1 303 See Other\r\n"
-        "Location: /request_product.html\r\n"
+        "Location: /root/supplierbuyer/request_product.html\r\n"
         "Content-Length: 0\r\n\r\n");
     return 303;
 }, nullptr);
@@ -751,7 +751,7 @@ mg_set_request_handler(ctx, "/submit_contact", [](mg_connection *conn, void *) -
         "<!DOCTYPE html><html><head><title>Thank You</title></head><body>"
         "<h1>Thank You for Contacting Us!</h1>"
         "<p>We have received your message and will get back to you soon.</p>"
-        "<a href='/supplierbuyer/contactpage.html'>Back to Contact</a>"
+        "<a href='/root/supplierbuyer/supplierbuyer/contactpage.html'>Back to Contact</a>"
         "</body></html>");
     return 200;
 }, nullptr);
@@ -1057,15 +1057,15 @@ mg_printf(conn,
     "<div class='navbar'>"
     "  <div class='brand'>SupplierBuyer</div>"
     "  <ul>"
-    "    <li><a href='/supplierbuyer/supplierbuyerhome.html'>Home</a></li>"
-    "    <li><a href='/supplierbuyer/supplierbuyerdash.html'>My Products</a></li>"
-    "    <li><a href='/supplierbuyer/messageadmin.html'>Messages</a></li>"
-    "    <li><a href='/supplierbuyer/logout.html'>Logout</a></li>"
+    "    <li><a href='/root/supplierbuyer/supplierbuyer/supplierbuyerhome.html'>Home</a></li>"
+    "    <li><a href='/root/supplierbuyer/supplierbuyer/supplierbuyerdash.html'>My Products</a></li>"
+    "    <li><a href='/root/supplierbuyer/supplierbuyer/messageadmin.html'>Messages</a></li>"
+    "    <li><a href='/root/supplierbuyer/supplierbuyer/logout.html'>Logout</a></li>"
     "  </ul>"
     "</div>"
     "<h1>All Products & Requests</h1>"
     "<div class='search-box'>"
-    "<form method='GET' action='/supplierbuyer/supplierbuyerhome.html'>"
+    "<form method='GET' action='/root/supplierbuyer/supplierbuyer/supplierbuyerhome.html'>"
     "<input type='text' name='search' placeholder='Search...' value='%s'>"
     "<button type='submit'>Search</button>"
     "</form></div>"
