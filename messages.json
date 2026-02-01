@@ -1,0 +1,72 @@
+[
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "1",
+        "text": "1",
+        "timestamp": 1769665867
+    },
+    {
+        "product_id": "",
+        "receiver": "1",
+        "sender": "Admin",
+        "text": "2",
+        "timestamp": 1769665874
+    },
+    {
+        "product_id": "",
+        "receiver": "1",
+        "sender": "Admin",
+        "text": "3",
+        "timestamp": 1769665879
+    },
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "ww",
+        "text": "123",
+        "timestamp": 1769666411
+    },
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "1",
+        "text": "1",
+        "timestamp": 1769666463
+    },
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "1",
+        "text": "1",
+        "timestamp": 1769666463
+    },
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "Buyer_User",
+        "text": "1",
+        "timestamp": 1769667432
+    },
+    {
+        "product_id": "admin_reply",
+        "receiver": "Buyer_User",
+        "sender": "Admin",
+        "text": "123",
+        "timestamp": 6023140
+    },
+    {
+        "product_id": "0",
+        "receiver": "Admin",
+        "sender": "User1",
+        "text": "24333222",
+        "timestamp": 6048781
+    },
+    {
+        "product_id": "admin_reply",
+        "receiver": "User1",
+        "sender": "Admin",
+        "text": "121212121",
+        "timestamp": 6059578
+    }
+]

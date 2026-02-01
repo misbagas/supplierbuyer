@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Admin</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .chat-container { width: 100%; max-width: 500px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 90vh; }
+        .header { padding: 15px; background: #0077cc; color: white; border-radius: 8px 8px 0 0; }
+        #chatBox { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #ffffff; }
+        .msg { padding: 10px 14px; border-radius: 15px; max-width: 80%; line-height: 1.4; font-size: 14px; }
+        .sent { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
+        .received { align-self: flex-start; background: #ebebeb; border-bottom-left-radius: 2px; }
+        .input-area { padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px; background: #f9f9f9; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+        button { padding: 10px 20px; background: #0077cc; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #005fa3; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <h3 id="chatTitle">Chatting with Admin</h3>
+        </div>
+        <div id="chatBox"></div>
+        <form class="input-area" id="msgForm">
+            <input type="text" id="userMsg" placeholder="Type your message..." required autocomplete="off">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    
+
+    <script>
+        // Get product details from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id') || "General";
+        const productName = urlParams.get('name') || "Inquiry";
+        
+        // Configuration
+        const currentUser = "User1"; // Updated as requested
+        document.getElementById('chatTitle').innerText = "Product: " + productName;
+
+        /**
+         * Fetches all messages and filters them for the current user
+         */
+        async function fetchMessages() {
+            try {
+                const res = await fetch('/api/messages');
+                if (!res.ok) throw new Error("Failed to fetch");
+                
+                const allMessages = await res.json();
+                
+                // Filter messages for this specific user (sent or received)
+                const filtered = allMessages.filter(m => 
+                    (m.sender === currentUser || m.receiver === currentUser)
+                );
+
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML = filtered.map(m => `
+                    <div class="msg ${m.sender === currentUser ? 'sent' : 'received'}">
+                        <strong>${m.sender}:</strong><br>${m.text}
+                    </div>
+                `).join('');
+                
+                // Keep scroll at bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Chat sync error:", error);
+            }
+        }
+
+        /**
+         * Sends a message to the Admin
+         */
+        document.getElementById('msgForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('userMsg');
+            const messageText = input.value.trim();
+            
+            if (!messageText) return;
+
+            const body = new URLSearchParams({
+                product_id: productId,
+                sender: currentUser,
+                receiver: "Admin",
+                message: messageText
+            });
+
+            try {
+                const res = await fetch('/api/messages', { 
+                    method: 'POST', 
+                    body: body 
+                });
+                
+                if (res.ok) {
+                    input.value = "";
+                    fetchMessages(); // Refresh UI immediately
+                }
+            } catch (error) {
+                alert("Could not send message. Please try again.");
+            }
+        };
+
+        // Initialize and poll every 3 seconds for Admin replies
+        fetchMessages();
+        setInterval(fetchMessages, 3000);
+    </script>
+</body>
+</html>

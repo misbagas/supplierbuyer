@@ -96,200 +96,63 @@
   </div>
 
 <script>
-let currentConversations = {};
-let activeConversationId = null;
+ let allMessages = [];
 
 async function loadConversations() {
-  try {
-    const res = await fetch("/api/messages");
-    if (!res.ok) {
-        console.error("Failed to fetch messages:", res.status);
-        return;
-    }
-    const messages = await res.json();
+    const res = await fetch('/api/messages');
+    allMessages = await res.json();
     
-    const grouped = {};
-    messages.forEach(m => {
-      const participant = m.sender !== 'Admin' ? m.sender : m.receiver;
-      if (!participant) return;
-      const convoId = `${m.product_id}-${participant}`;
-      if (!grouped[convoId]) {
-        grouped[convoId] = { messages: [], lastUpdate: null, participant, product_id: m.product_id };
-      }
-      grouped[convoId].messages.push(m);
-      grouped[convoId].lastUpdate = m.created_at;
+    // Get unique users who are not Admin
+    const buyers = [...new Set(allMessages.filter(m => m.sender !== "Admin").map(m => m.sender))];
+    
+    const list = document.getElementById('conversationList');
+    list.innerHTML = ""; 
+    buyers.forEach(buyerName => {
+        const div = document.createElement('div');
+        div.className = "conversation";
+        div.innerHTML = `<strong>User: ${buyerName}</strong>`;
+        div.onclick = () => viewChat(buyerName);
+        list.appendChild(div);
     });
-
-    currentConversations = grouped;
-    renderConversationList();
-    if (activeConversationId && currentConversations[activeConversationId]) {
-      // Re-render the currently open conversation to show new messages
-      // ✅ CHANGED: Set to 'true' to scroll to bottom on auto-refresh
-      openConversation(activeConversationId, true);
-    } else if (activeConversationId && !currentConversations[activeConversationId]) {
-      // 🟢 ADDED: If the active conversation was cleared, reset the view
-      document.getElementById('placeholder').style.display = 'flex';
-      document.getElementById('chatWindow').style.display = 'none';
-      activeConversationId = null;
-    }
-  } catch (error) {
-    console.error("Error loading or parsing conversations:", error);
-    // This catch block will now show you if the JSON is invalid
-  }
 }
 
-function renderConversationList() {
-  const list = document.getElementById("conversationList");
-  list.innerHTML = "";
-  const sortedIds = Object.keys(currentConversations).sort((a, b) => {
-    return new Date(currentConversations[b].lastUpdate) - new Date(currentConversations[a].lastUpdate);
-  });
+function viewChat(buyerName) {
+    document.getElementById("placeholder").style.display = "none";
+    document.getElementById("chatWindow").style.display = "flex";
+    document.getElementById("chatHeader").innerText = "Chatting with: " + buyerName;
+    document.getElementById("reply_receiver").value = buyerName;
 
-  sortedIds.forEach(id => {
-    const convo = currentConversations[id];
-    // Find the last message in the array (which is already sorted by ID/date)
-    const lastMsg = convo.messages.length > 0 ? convo.messages[convo.messages.length - 1] : null;
-    const div = document.createElement('div');
-    div.className = 'conversation' + (id === activeConversationId ? ' active' : '');
-    div.innerHTML = `
-  <b>${convo.participant}</b>
-  <span>${lastMsg ? 'Product #' + convo.product_id + ': ' + lastMsg.message : 'No messages yet'}</span>`;
-    div.onclick = () => openConversation(id, true);
-    list.appendChild(div);
-  });
-}
+    const chatBox = document.getElementById("chatBox");
+    chatBox.innerHTML = "";
 
-function openConversation(convoId, shouldScroll) {
-  activeConversationId = convoId;
-  const convo = currentConversations[convoId];
-  if (!convo) {
-      console.error("Tried to open invalid conversation:", convoId);
-      return;
-  }
-  
-  // Highlight the active conversation in the list
-  document.querySelectorAll('.conversation').forEach(el => {
-      el.classList.remove('active');
-  });
-  const activeEl = Array.from(document.querySelectorAll('.conversation')).find(el => el.onclick.toString().includes(`'${convoId}'`));
-  if (activeEl) {
-      activeEl.classList.add('active');
-  }
+    // Show messages between Admin and this specific user
+    const chatHistory = allMessages.filter(m => m.sender === buyerName || m.receiver === buyerName);
 
-  document.getElementById('placeholder').style.display = 'none';
-  document.getElementById('chatWindow').style.display = 'flex';
-  
-  // 🟢 CHANGED: Use innerHTML to add the clear button
-  document.getElementById('chatHeader').innerHTML = `
-    <span>Chat with ${convo.participant} (Product #${convo.product_id})</span>
-    <button class="clear-chat-btn" onclick="clearConversation()">Clear Chat</button>
-  `;
-
-  const chatBox = document.getElementById('chatBox');
-  chatBox.innerHTML = '';
-  
-  // Sort messages by date before displaying
-  convo.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  
-  convo.messages.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'message ' + (m.sender === 'Admin' ? 'sent' : 'received');
-    // 🟢 CHANGED: Added delete button with onclick event
-    div.innerHTML = `
-        <span class="delete-btn" onclick="deleteMessage(${m.id})">&times;</span>
-        ${m.message}
-        <div class="meta">${new Date(m.created_at).toLocaleString()}</div>
-    `;
-    chatBox.appendChild(div);
-  });
-  
-  // ✅ CHANGED: Wrapped in setTimeout to fix scroll timing issue
-  if (shouldScroll) {
-      setTimeout(() => {
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }, 0); // 0ms delay pushes this command to the end of the event queue
-  }
-  
-  document.getElementById('reply_product_id').value = convo.product_id;
-  document.getElementById('reply_receiver').value = convo.participant;
-}
-
-document.getElementById('adminReplyForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  
-  // This part is crucial and correct
-  const body = new URLSearchParams(new FormData(e.target));
-  
-  const res = await fetch('/send_message', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: body 
-  });
-  
-  if (res.ok) {
-    e.target.message.value = '';
-    // Manually load conversations to immediately see the sent message
-    await loadConversations();
-  } else {
-    alert('Failed to send reply.');
-  }
-});
-
-// 🟢 ADDED: Function to delete a single message
-async function deleteMessage(messageId) {
-    if (!confirm('Are you sure you want to delete this message for everyone?')) {
-        return;
-    }
-    
-    const body = new URLSearchParams({ id: messageId });
-    
-    const res = await fetch('/api/delete_message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body
+    chatHistory.forEach(m => {
+        const msgDiv = document.createElement("div");
+        msgDiv.style = m.sender === "Admin" ? "text-align: right; color: blue;" : "text-align: left;";
+        msgDiv.innerHTML = `<p style="background:#eee; padding:8px; border-radius:10px; display:inline-block;">
+                            <strong>${m.sender}:</strong> ${m.text}</p>`;
+        chatBox.appendChild(msgDiv);
     });
-
-    if (res.ok) {
-        await loadConversations(); // Reload the conversation list and chat
-    } else {
-        alert('Failed to delete message.');
-    }
 }
 
-// 🟢 ADDED: Function to clear the active conversation
-async function clearConversation() {
-    if (!activeConversationId || !currentConversations[activeConversationId]) {
-        return;
-    }
-    
-    if (!confirm('Are you sure you want to delete this entire conversation for everyone? This cannot be undone.')) {
-        return;
-    }
-
-    const convo = currentConversations[activeConversationId];
+document.getElementById("adminReplyForm").onsubmit = async function(e) {
+    e.preventDefault();
+    const receiver = document.getElementById("reply_receiver").value;
     const body = new URLSearchParams({
-        product_id: convo.product_id,
-        participant: convo.participant
+        product_id: "admin_reply", 
+        sender: "Admin",
+        receiver: receiver,
+        message: this.querySelector("textarea").value
     });
 
-    const res = await fetch('/api/clear_conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body
-    });
+    await fetch("/api/messages", { method: "POST", body: body });
+    this.querySelector("textarea").value = "";
+    loadConversations().then(() => viewChat(receiver));
+};
 
-    if (res.ok) {
-        await loadConversations(); // This will refresh the list and hide the chat
-    } else {
-        alert('Failed to clear conversation.');
-    }
-}
-
-
-loadConversations();
-setInterval(loadConversations, 3000);
+setInterval(loadConversations, 3000); // Auto-refresh
 </script>
 
 </body>

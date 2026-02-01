@@ -2,3 +2,513 @@
 127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
 127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
 127.0.0.1 - - [27/Jan/2026:19:32:14 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:47 SE Asia Standard Time] "GET / HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:47 SE Asia Standard Time] "GET / HTTP/1.1" 200 1712 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 5919 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:48 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:49 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:49 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 3036 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:52 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:49 SE Asia Standard Time] "POST /login HTTP/1.1" 302 106 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:52 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:52 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html?error=usernotfound HTTP/1.1" 200 3036 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:54 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:52 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html?error=usernotfound Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:51:57 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:51:57 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:53:15 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:53:15 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:53:20 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:53:15 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:54:30 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:54:30 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:54:32 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:54:32 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:54:35 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:54:32 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:54:40 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:54:40 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:56:46 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:56:46 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:15 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:15 SE Asia Standard Time] "GET /auth/register.html HTTP/1.1" 200 2549 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:19 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:15 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:26 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:26 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:26 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1086 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 1035 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:08:59:41 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:08:59:30 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:02 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:02 SE Asia Standard Time] "GET /auth/resetpassword.html HTTP/1.1" 200 2205 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:05 SE Asia Standard Time] "POST /reset_password HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:02 SE Asia Standard Time] "POST /reset_password HTTP/1.1" 200 402 http://localhost:8080/auth/resetpassword.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:10 SE Asia Standard Time] "POST /verify_answer HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:10 SE Asia Standard Time] "POST /verify_answer HTTP/1.1" 200 111 http://localhost:8080/reset_password Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:11 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:10 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/verify_answer Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:14 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:14 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:14 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:14 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 182 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:40 SE Asia Standard Time] "GET /edit_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:14 SE Asia Standard Time] "GET /edit_product?id=%d HTTP/1.1" 200 84 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:44 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:44 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:49 SE Asia Standard Time] "GET /logout HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:45 SE Asia Standard Time] "GET /logout HTTP/1.1" 302 110 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:49 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:49 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:54 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:49 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:01:55 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:01:55 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 182 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:08:18 SE Asia Standard Time] "GET /edit_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:08:18 SE Asia Standard Time] "GET /edit_product?id=%d HTTP/1.1" 200 84 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:09:01 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:09:01 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:10:08 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:10:08 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:10:11 SE Asia Standard Time] "GET /supplierbuyer/contactpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:10:09 SE Asia Standard Time] "GET /supplierbuyer/contactpage.html HTTP/1.1" 200 3175 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:10:17 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:10:17 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:10:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:10:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1101 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:10 SE Asia Standard Time] "GET / HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:10 SE Asia Standard Time] "GET / HTTP/1.1" 200 1726 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:10 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:10 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 5919 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:11 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:11 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:11 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:11 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 3050 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1914 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 3045 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:20 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:18 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:21 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:21 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:22 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:21 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:29 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:29 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:35 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:30 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:12:56 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:56 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:08 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:12:56 SE Asia Standard Time] "POST /save_product HTTP/1.1" 303 94 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:10 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:11 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:11 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:13 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:11 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:21 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:21 SE Asia Standard Time] "POST /save_product HTTP/1.1" 303 94 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:13:21 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:13:21 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:10 SE Asia Standard Time] "GET /logout HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:10 SE Asia Standard Time] "GET /logout HTTP/1.1" 302 110 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:11 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:11 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:13 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:11 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:14 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:14 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:54 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:54 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1740 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:55 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:54 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:56 SE Asia Standard Time] "GET /delete_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:56 SE Asia Standard Time] "GET /delete_product?id=%d HTTP/1.1" 303 94 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:57 SE Asia Standard Time] "GET /edit_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:56 SE Asia Standard Time] "GET /edit_product?id=%d HTTP/1.1" 302 40 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:57 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:57 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:15:59 SE Asia Standard Time] "GET /edit_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:15:57 SE Asia Standard Time] "GET /edit_product?id=%d HTTP/1.1" 302 40 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:01 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:01 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:02 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:02 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:03 SE Asia Standard Time] "GET /edit_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:02 SE Asia Standard Time] "GET /edit_product?id=%d HTTP/1.1" 200 84 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:37 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:37 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1511 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:44 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:37 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:53 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:53 SE Asia Standard Time] "POST /save_product HTTP/1.1" 303 94 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:16:53 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:16:53 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:10 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:08 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:17 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:17 SE Asia Standard Time] "POST /save_product HTTP/1.1" 303 94 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:17 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:18 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 302 40 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:26 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:26 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:28 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:26 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:29 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:29 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:29 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 3604 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /uploads/2025-08-22 (1).png HTTP/1.1" 200 0 "-" "-"
+00 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /uploads/2025-08-19.png HTTP/1.1" 200 293366 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /uploads/2025-08-19 (1).png HTTP/1.1" 200 335237 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /uploads/2025-08-22 (1).png HTTP/1.1" 200 335257 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:32 SE Asia Standard Time] "GET /uploads/Screenshot 2026-01-20 092142.png HTTP/1.1" 200 271193 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:42 SE Asia Standard Time] "GET /product_detail HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:33 SE Asia Standard Time] "GET /product_detail?id=1 HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:53 SE Asia Standard Time] "GET /supplierbuyer/messageadmin.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:53 SE Asia Standard Time] "GET /supplierbuyer/messageadmin.html HTTP/1.1" 200 11454 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:53 SE Asia Standard Time] "GET /api/messages HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:53 SE Asia Standard Time] "GET /api/messages HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/messageadmin.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:26:57 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:26:53 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 3604 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 3604 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:37 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:37 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1415 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:43 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:38 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 302 40 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:43 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:43 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:45 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:43 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:53 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 3604 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:27:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:27:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html?search=1 HTTP/1.1" 200 3605 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:28:01 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:28:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html?search=1 HTTP/1.1" 200 3605 http://localhost:8080/supplierbuyer/supplierbuyerhome.html?search=1 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:28:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:28:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html?search=2 HTTP/1.1" 200 2892 http://localhost:8080/supplierbuyer/supplierbuyerhome.html?search=1 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:28:06 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:28:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html?search=1 HTTP/1.1" 200 3605 http://localhost:8080/supplierbuyer/supplierbuyerhome.html?search=2 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:08 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:08 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:10 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html?search=1 HTTP/1.1" 302 40 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:10 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:10 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:12 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:10 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:13 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:13 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:14 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:13 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:20 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:20 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 3604 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:21 SE Asia Standard Time] "GET /product_detail HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:20 SE Asia Standard Time] "GET /product_detail?id=1 HTTP/1.1" 404 321 http://localhost:8080/supplierbuyer/supplierbuyerhome.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:27 SE Asia Standard Time] "GET /logout HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:27 SE Asia Standard Time] "GET /logout HTTP/1.1" 302 110 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:27 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:27 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:34 SE Asia Standard Time] "GET /logout HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:27 SE Asia Standard Time] "GET /logout HTTP/1.1" 302 110 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:35 SE Asia Standard Time] "GET /supplierbuyer/auth/resetpassword.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:35 SE Asia Standard Time] "GET /supplierbuyer/auth/resetpassword.html HTTP/1.1" 200 2205 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:39 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:36 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:41 SE Asia Standard Time] "GET /supplierbuyer/auth/joinpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:41 SE Asia Standard Time] "GET /supplierbuyer/auth/joinpage.html HTTP/1.1" 200 2549 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:42 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:41 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:46 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:46 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:34:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:34:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:42:50 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:42:50 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:42:57 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:42:50 SE Asia Standard Time] "POST /save_product HTTP/1.1" 303 94 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:42:57 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:42:57 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:47:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:47:46 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:47:46 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:47:46 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:47:50 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:47:50 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:47:59 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:47:50 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:47:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:47:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:06 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:06 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:13 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:06 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:13 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:13 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1733 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:13 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:13 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:15 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:14 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:52:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:52:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:07 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:07 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:11 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:07 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerhome.html HTTP/1.1" 302 40 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:11 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:11 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:11 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:22 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:16 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:23 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:23 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:36 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:23 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:36 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:36 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:09:58:36 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:09:58:36 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:02:50 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:02:50 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:02:51 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:02:50 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:02:59 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:40 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:40 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:41 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:45 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:44 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:03:55 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:04:55 SE Asia Standard Time] "GET / HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:55 SE Asia Standard Time] "GET / HTTP/1.1" 200 1726 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:04:55 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:55 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 5919 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:04:56 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:56 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:04:56 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:56 SE Asia Standard Time] "GET /favicon.ico HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:04:57 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:57 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 3050 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:04:59 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:04:57 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1733 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 3045 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:01 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:00 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:14 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:14 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:15 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:15 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:05:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:05:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+127.0.0.1 - - [28/Jan/2026:10:21:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:08 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1733 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:09 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:09 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 183 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:09 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:09 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:10 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:09 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:10 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:10 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 5919 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:21 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:10 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:22 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:22 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:21:22 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:21:22 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 3045 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:03 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:03 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:06 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:03 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:45:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:46:45 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:46:45 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:16 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:15 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:18 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:18 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET / HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET / HTTP/1.1" 200 1726 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET /supplierbuyer.css HTTP/1.1" 200 5919 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET /supplierbuyer.js HTTP/1.1" 404 321 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:36 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:34 SE Asia Standard Time] "GET /supplierbuyer/auth/loginpage.html HTTP/1.1" 200 3050 http://localhost:8080/ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1754 http://localhost:8080/supplierbuyer/auth/loginpage.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.css HTTP/1.1" 200 3045 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:41 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:47:59 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:47:42 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:28 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:28 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:29 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:29 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1707 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:30 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:31 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:48:32 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:24 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:24 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:25 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:24 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1637 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:25 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:25 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:25 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:25 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:26 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:51:27 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:53:37 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:53:37 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:02 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:02 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:03 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:02 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 2552 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:04 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:04 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:08 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:04 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "POST /save_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "POST /save_product HTTP/1.1" 302 71 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:18 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:19 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:19 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 304 183 http://localhost:8080/upload_product Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:54:20 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:15 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:15 SE Asia Standard Time] "GET /upload_product HTTP/1.1" 200 1650 - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:21 SE Asia Standard Time] "GET /logout HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:15 SE Asia Standard Time] "GET /logout HTTP/1.1" 302 110 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:22 SE Asia Standard Time] "GET /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:22 SE Asia Standard Time] "GET /login HTTP/1.1" 200 3050 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "POST /login HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:22 SE Asia Standard Time] "POST /login HTTP/1.1" 302 165 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "GET /supplierbuyer/supplierbuyerdash.html HTTP/1.1" 200 1637 http://localhost:8080/login Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+127.0.0.1 - - [28/Jan/2026:10:55:26 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 0 "-" "-"
+127.0.0.1 - - [28/Jan/2026:10:55:24 SE Asia Standard Time] "GET /api/products HTTP/1.1" 200 53 http://localhost:8080/supplierbuyer/supplierbuyerdash.html Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0

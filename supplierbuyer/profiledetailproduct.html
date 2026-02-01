@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - SupplierBuyer</title>
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --secondary: #2a5298;
+            --accent: #00a6e1;
+            --bg: #f4f7fa;
+            --text: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        /* --- Profile Header Section --- */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        #userPhoto {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255,255,255,0.2);
+        }
+
+        .profile-info h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .profile-info p { opacity: 0.9; max-width: 600px; }
+
+        /* --- Product Grid Section --- */
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent);
+            display: inline-block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover { transform: translateY(-10px); }
+
+        .product-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-details { padding: 20px; }
+        .product-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
+        .product-price { color: var(--accent); font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
+        
+        .view-btn {
+            display: block;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .profile-header { flex-direction: column; text-align: center; padding: 20px; }
+            #userPhoto { width: 120px; height: 120px; }
+            .profile-info h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="profile-header">
+        <img id="userPhoto" src="https://placehold.co/150x150?text=..." alt="Profile">
+        <div class="profile-info">
+            <h1 id="displayUsername">Loading...</h1>
+            <p id="displayBio">Fetching supplier details...</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Products by this Supplier</h2>
+    <div id="productGrid" class="product-grid">
+        </div>
+</div>
+
+<script>
+    // 1. Get the username from URL (e.g., ?user=Admin)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUser = urlParams.get('user') || "Admin"; // Default to Admin if no query
+
+    async function loadProfileData() {
+        try {
+            // Fetch profile details (This uses your AdminProfileHandler)
+            const res = await fetch('/api/admin_profile');
+            const user = await res.json();
+            
+            document.getElementById('displayUsername').textContent = user.username;
+            document.getElementById('displayBio').textContent = user.description || "No bio available.";
+            if (user.photo) {
+                document.getElementById('userPhoto').src = user.photo + "?t=" + new Date().getTime();
+            }
+        } catch (err) { console.error("Error loading profile:", err); }
+    }
+
+    async function loadUserProducts() {
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            const grid = document.getElementById('productGrid');
+            
+            // Filter products: Only show products created by 'targetUser'
+            // Note: This assumes your products.json stores a "seller" or "username" field.
+            // If you don't have that field yet, this will show all products.
+            const userProducts = products.filter(p => p.seller === targetUser || !p.seller);
+
+            if (userProducts.length === 0) {
+                grid.innerHTML = "<p>No products found for this user.</p>";
+                return;
+            }
+
+            userProducts.forEach((p, index) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${p.image}" class="product-img" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                    <div class="product-details">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
+                        <a href="detailproduct_supplierbuyer.html?id=${index}" class="view-btn">View Details</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (err) { console.error("Error loading products:", err); }
+    }
+
+    window.onload = () => {
+        loadProfileData();
+        loadUserProducts();
+    };
+</script>
+
+</body>
+</html>

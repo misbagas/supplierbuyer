@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Collection - SupplierBuyer</title>
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --secondary: #2a5298;
+            --bg: #f4f7fa;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .message-list { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .message-item { 
+            padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; 
+            justify-content: space-between; align-items: center; transition: background 0.2s;
+            cursor: pointer; text-decoration: none; color: inherit;
+        }
+        .message-item:hover { background: #f9f9f9; }
+        .message-info h4 { margin: 0 0 5px 0; color: var(--primary); }
+        .message-info p { margin: 0; font-size: 14px; color: #666; }
+        .view-btn { 
+            background: var(--secondary); color: white; padding: 8px 16px; 
+            border-radius: 6px; text-decoration: none; font-size: 14px;
+        }
+        .no-messages { padding: 40px; text-align: center; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Inbox</h2>
+        <a href="supplierbuyerdash.html" style="color: white; text-decoration: none;">← Dashboard</a>
+    </div>
+
+    <div class="message-list" id="inboxList">
+        <div class="no-messages">Loading messages...</div>
+    </div>
+</div>
+
+<script>
+    async function loadInbox() {
+        const listContainer = document.getElementById('inboxList');
+        try {
+            // Fetching from the existing messages API
+            const res = await fetch('/api/messages');
+            const messages = await res.json();
+
+            if (!messages || messages.length === 0) {
+                listContainer.innerHTML = '<div class="no-messages">No messages found.</div>';
+                return;
+            }
+
+            // Group messages by conversation (unique users)
+            const conversations = {};
+            messages.forEach(msg => {
+                const otherParty = msg.sender === 'Admin' ? msg.receiver : msg.sender;
+                if (!conversations[otherParty]) {
+                    conversations[otherParty] = {
+                        user: otherParty,
+                        lastMsg: msg.text,
+                        productId: msg.product_id
+                    };
+                }
+            });
+
+            listContainer.innerHTML = '';
+            Object.values(conversations).forEach(conv => {
+                const item = document.createElement('a');
+                item.className = 'message-item';
+                // Link to the detailed chat page
+                item.href = `detailmessage.html?id=${conv.productId}&user=${encodeURIComponent(conv.user)}`;
+                
+                item.innerHTML = `
+                    <div class="message-info">
+                        <h4>Chat with ${conv.user}</h4>
+                        <p>${conv.lastMsg.substring(0, 50)}${conv.lastMsg.length > 50 ? '...' : ''}</p>
+                    </div>
+                    <div class="view-btn">Open Chat</div>
+                `;
+                listContainer.appendChild(item);
+            });
+
+        } catch (err) {
+            console.error("Error loading inbox:", err);
+            listContainer.innerHTML = '<div class="no-messages">Failed to load messages.</div>';
+        }
+    }
+
+    window.onload = loadInbox;
+</script>
+
+</body>
+</html>

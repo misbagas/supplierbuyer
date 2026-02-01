@@ -1,89 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Edit Profile</title>
-  <style>
-    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:20px; }
-    .container { max-width:600px; margin:0 auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    h2 { margin-bottom:20px; color:#00a6e1; }
-    label { display:block; margin:10px 0 5px; }
-    input { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
-    button { margin-top:15px; padding:10px 15px; background:#007BFF; color:#fff; border:none; border-radius:4px; cursor:pointer; }
-    button:hover { background:#0056b3; }
-    #profileDisplay { margin-top:20px; padding:15px; background:#f9f9f9; border:1px solid #ddd; border-radius:6px; }
-    #msg { margin-top:15px; font-weight:bold; color:green; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - SupplierBuyer</title>
+    <style>
+        :root { --primary: #1e3c72; --secondary: #2a5298; --success: #28a745; --error: #dc3545; }
+        body { font-family: 'Inter', sans-serif; background: #f4f7fa; margin: 0; padding: 20px; color: #333; }
+        .profile-card {
+            max-width: 500px; margin: 40px auto; background: white;
+            padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .profile-header { text-align: center; margin-bottom: 25px; }
+        .profile-header h2 { margin: 10px 0; color: var(--primary); }
+        
+        .photo-container { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; }
+        #currentPhoto {
+            width: 120px; height: 120px; border-radius: 50%;
+            object-fit: cover; border: 4px solid var(--secondary); background: #eee;
+        }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #555; }
+        input, textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 14px; box-sizing: border-box;
+        }
+        textarea { resize: vertical; }
+        
+        button {
+            width: 100%; padding: 12px; background: var(--primary);
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: var(--secondary); }
+        
+        #statusMessage {
+            display: none; padding: 12px; border-radius: 8px;
+            margin-bottom: 20px; text-align: center; font-weight: 500;
+        }
+        .nav-back {
+            display: block; text-align: center; margin-top: 20px;
+            text-decoration: none; color: var(--secondary); font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Profile Admin</h2>
 
-    <!-- Combined Profile + Login Info Form -->
+<div class="profile-card">
+    <div class="profile-header">
+        <div class="photo-container">
+            <img id="currentPhoto" src="https://placehold.co/120x120?text=Admin" alt="Profile">
+        </div>
+        <h2>Admin Settings</h2>
+    </div>
+
+    <div id="statusMessage"></div>
+
     <form id="profileForm">
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" required>
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
-
-      <label for="newUsername">Username</label>
-      <input type="text" id="newUsername" name="newUsername" required>
-
-      <label for="newPassword">Password</label>
-      <input type="password" id="newPassword" name="newPassword" required>
-
-      <button type="submit">Save Profile</button>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Change username" required>
+        </div>
+        <div class="form-group">
+            <label>New Password (leave blank to keep current)</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+            <label>Profile Bio / Description</label>
+            <textarea id="description" rows="3" placeholder="Tell us about yourself..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Profile Photo</label>
+            <input type="file" id="photoInput" accept="image/*">
+        </div>
+        <button type="submit" id="submitBtn">Save Changes</button>
     </form>
 
-    <!-- Success message -->
-    <p id="msg"></p>
+    <a href="/supplierbuyer/supplierbuyerdash.html" class="nav-back">← Return to Dashboard</a>
+</div>
 
-    <!-- Display Current Profile -->
-    <div id="profileDisplay">
-      <h3>Current Profile</h3>
-      <p><b>Name:</b> <span id="dispName"></span></p>
-      <p><b>Email:</b> <span id="dispEmail"></span></p>
-    </div>
-  </div>
+<script>
+    const status = document.getElementById('statusMessage');
 
-  <script>
-    async function loadProfile() {
-      const res = await fetch('/api/profile');
-      if (res.ok) {
-        const data = await res.json();
-        document.getElementById('name').value = data.name || "";
-        document.getElementById('email').value = data.email || "";
-        document.getElementById('newUsername').value = data.name || "";
-        document.getElementById('dispName').textContent = data.name || "-";
-        document.getElementById('dispEmail').textContent = data.email || "-";
-      }
+    function showStatus(msg, isError = false) {
+        status.textContent = msg;
+        status.style.display = 'block';
+        status.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+        status.style.color = isError ? '#721c24' : '#155724';
+        if (!isError) setTimeout(() => status.style.display = 'none', 4000);
     }
 
-    document.getElementById('profileForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new URLSearchParams(new FormData(e.target));
+    // 1. Fetch current data on load
+    async function loadProfile() {
+        try {
+            const res = await fetch('/api/admin_profile');
+            if (!res.ok) throw new Error("Could not fetch profile");
+            
+            const user = await res.json();
+            document.getElementById('username').value = user.username || "";
+            document.getElementById('description').value = user.description || "";
+            
+            if (user.photo) {
+                // Cache busting with timestamp
+                document.getElementById('currentPhoto').src = user.photo + "?t=" + new Date().getTime();
+            }
+        } catch (err) {
+            console.error("Load Error:", err);
+            showStatus("Failed to load profile data", true);
+        }
+    }
 
-      // 1️⃣ Update basic profile (name + email)
-      await fetch('/api/update_profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData
-      });
+    // 2. Submit changes
+    document.getElementById('profileForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = "Saving...";
 
-      // 2️⃣ Update login info (username + password)
-      await fetch('/api/update_login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData
-      });
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
+        formData.append('description', document.getElementById('description').value);
+        
+        const photoFile = document.getElementById('photoInput').files[0];
+        if (photoFile) formData.append('photo', photoFile);
 
-      document.getElementById('msg').textContent = "Profile updated successfully!";
-      loadProfile();
-    });
+        try {
+            const response = await fetch('/api/update_admin', {
+                method: 'POST',
+                body: formData
+            });
 
-    // Load when page opens
-    loadProfile();
-  </script>
+            const result = await response.json();
+            
+            if (result.success) {
+                showStatus("✅ Profile updated successfully!");
+                // Reload after short delay to show the new image/username
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showStatus("❌ Error: " + (result.message || "Save failed"), true);
+            }
+        } catch (err) {
+            showStatus("❌ Network error. Is the server running?", true);
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Save Changes";
+        }
+    };
+
+    // Add this inside your <script> tag in profileadmin.html
+document.getElementById('photoInput').onchange = function (evt) {
+    const [file] = this.files;
+    if (file) {
+        // Show a preview of the selected image locally
+        document.getElementById('currentPhoto').src = URL.createObjectURL(file);
+    }
+};
+
+    window.onload = loadProfile;
+</script>
+
 </body>
 </html>

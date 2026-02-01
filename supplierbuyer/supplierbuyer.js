@@ -7,7 +7,7 @@ function setAdminLinks() {
     }
 
     // Change Join Now button to Admin and point to adminpage.html
-    var joinBtn = document.querySelector('a.btn[href="/auth/joinpage.html"]');
+    var joinBtn = document.querySelector('a.btn[href="/supplierbuyer/auth/joinpage.html"]');
     if (joinBtn) {
         joinBtn.textContent = 'Admin';
         joinBtn.href = '/admin/adminpage.html'; // <-- FIXED
