@@ -2,7 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <windows.h>
+#ifdef _WIN32
+  #include <windows.h>
+#else
+  #include <unistd.h>
+  #include <ctime>
+#endif
 #include "CivetServer.h"
 #include "json.hpp"
 #include <cstring>
@@ -12,7 +17,7 @@
 
 using json = nlohmann::json;
 
-static const char* PRODUCT_FILE = "products.json";
+static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
 
 /* ================= PRODUCTS API ================= */
 class ProductsHandler : public CivetHandler {
@@ -108,7 +113,7 @@ public:
                 // It's a file
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
-                std::string fullPath = "/root/supplierbuyer/uploads" + safeName;
+                std::string fullPath = "/root/supplierbuyer/uploads/" + safeName;
                 
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
@@ -197,7 +202,7 @@ public:
 
             if (isFile && !content.empty()) {
                 std::string safeName = "updated_" + std::to_string(time(0)) + ".jpg";
-                std::ofstream file("/root/supplierbuyer/uploads" + safeName, std::ios::binary);
+                std::ofstream file("/root/supplierbuyer/uploads/" + safeName, std::ios::binary);
                 file.write(content.c_str(), content.size());
                 newImageUrl = "/uploads/" + safeName;
             } else {
@@ -211,7 +216,7 @@ public:
 
 // Inside UpdateProductWithImageHandler::handlePost
 json products;
-std::ifstream in("products.json");
+std::ifstream in("/root/supplierbuyer/products.json");
 if (in.is_open()) {
     in >> products;
     in.close();
@@ -227,7 +232,7 @@ if (pIndex >= 0 && pIndex < (int)products.size()) {
         products[pIndex]["image"] = newImageUrl;
     }
 
-    std::ofstream out("products.json");
+    std::ofstream out("/root/supplierbuyer/products.json");
     out << products.dump(4);
     out.close();
 }
@@ -308,7 +313,7 @@ public:
 /* ================= ADMIN PROFILE API ================= */
 class AdminProfileHandler : public CivetHandler {
 private:
-    const std::string USER_FILE = "users.json";
+    const std::string USER_FILE = "/root/supplierbuyer/users.json";
 
     // Helper to extract text fields from multipart
     std::string getField(const std::string& body, const std::string& key) {
@@ -365,7 +370,7 @@ public:
             if (end > start) {
                 std::string fileData = body.substr(start, end - start);
                 std::string fileName = "profile_" + users[0]["username"].get<std::string>() + ".jpg";
-                std::string fullPath = "uploads/" + fileName;
+                std::string fullPath = "/root/supplierbuyer/uploads/" + fileName;
 
                 std::ofstream outFile(fullPath, std::ios::binary);
                 outFile.write(fileData.data(), fileData.size());
@@ -401,7 +406,7 @@ public:
             auto updatedProducts = json::parse(body);
             
             // Overwrite products.json with the new list
-            std::ofstream out("products.json");
+            std::ofstream out("/root/supplierbuyer/products.json");
             out << updatedProducts.dump(4);
             out.close();
 
@@ -495,10 +500,17 @@ public:
             filepath_suffix = uri.substr(15);  // Remove "/supplierbuyer/"
         }
 
+        // 🔹 If the request is for loginpage.html, serve from auth folder
+        std::string full_path;
+        if (filepath_suffix == "loginpage.html") {
+            full_path = "/root/supplierbuyer/supplierbuyer/auth/loginpage.html";
+        } else {
+            full_path = "/root/supplierbuyer/supplierbuyer" + filepath_suffix;
+        }
+
         char filepath[512];
-        snprintf(filepath, sizeof(filepath),
-            "/root/supplierbuyer/supplierbuyer%s",
-            filepath_suffix.c_str());
+        strncpy(filepath, full_path.c_str(), sizeof(filepath) - 1);
+        filepath[sizeof(filepath) - 1] = '\0';
 
         fprintf(stderr, "📥 Serving request: %s\n", filepath);
 
@@ -566,17 +578,17 @@ public:
         mg_get_var(post_data, dlen, "security_answer", answer, sizeof(answer));
 
         // Save Format: user:pass:question:answer
-        std::ofstream userFile("users.txt", std::ios::app);
+        std::ofstream userFile("/root/supplierbuyer/users.txt", std::ios::app);
         if (userFile.is_open()) {
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
         }
 
-       mg_printf(conn,
+        mg_printf(conn,
             "HTTP/1.1 302 Found\r\n"
-            "Location: /supplierbuyer/supplierbuyerdash.html\r\n"
+            "Location: /supplierbuyer/supplierbuyerdash.html\r\n" // Redirect to the dashboard URL
             "Content-Length: 0\r\n\r\n");
-        return true;
+                return true;
     }
 };
 /* ================= LOGIN HANDLER ================= */
@@ -585,14 +597,18 @@ public:
     bool handlePost(CivetServer*, struct mg_connection* conn) override {
         char post_data[1024];
         int dlen = mg_read(conn, post_data, sizeof(post_data) - 1);
-        if (dlen <= 0) return false;
+        if (dlen <= 0) {
+            // Always return true to prevent 404
+            mg_printf(conn, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
         post_data[dlen] = '\0';
 
         char input_user[100], input_pass[100];
         mg_get_var(post_data, dlen, "username", input_user, sizeof(input_user));
         mg_get_var(post_data, dlen, "password", input_pass, sizeof(input_pass));
 
-        std::ifstream userFile("users.txt");
+        std::ifstream userFile("/root/supplierbuyer/users.txt");
         std::string line;
         bool authenticated = false;
 
@@ -600,8 +616,6 @@ public:
             while (std::getline(userFile, line)) {
                 std::stringstream ss(line);
                 std::string stored_user, stored_pass, q, a;
-                
-                // Parse the colon-separated line
                 if (std::getline(ss, stored_user, ':') && std::getline(ss, stored_pass, ':')) {
                     if (stored_user == input_user && stored_pass == input_pass) {
                         authenticated = true;
@@ -613,9 +627,11 @@ public:
         }
 
         if (authenticated) {
+            // Redirect to dashboard on success
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\n\r\n");
         } else {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/loginpage.html?error=invalid\r\n\r\n");
+            // Redirect to login page with error on failure
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\n\r\n");
         }
         return true;
     }
@@ -646,7 +662,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", a_input, sizeof(a_input));
         mg_get_var(post_data, dlen, "new_password", new_pass, sizeof(new_pass));
 
-        std::ifstream inFile("users.txt");
+        std::ifstream inFile("/root/supplierbuyer/users.txt");
         std::vector<std::string> lines;
         std::string line;
         bool success = false;
@@ -670,7 +686,7 @@ public:
         }
 
         if (success) {
-            std::ofstream outFile("users.txt");
+            std::ofstream outFile("/root/supplierbuyer/users.txt");
             for (const auto& l : lines) outFile << l << "\n";
             outFile.close();
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\n\r\n");
@@ -749,55 +765,51 @@ private:
 };
 
 // In your main() function, ensure this is added:
-// server.addHandler("/api/messages", new MessageHandler());
 int main() {
     const char* options[] = {
         "document_root", "/root/supplierbuyer",
         "listening_ports", "8080",
-        "enable_directory_listing", "no",
         "index_files", "supplierbuyer/supplierbuyer.html",
         nullptr
     };
 
     CivetServer server(options);
 
+    // Initialize Handlers
     ProductsHandler productsHandler;
     UploadHandler uploadHandler;
-    UploadFormHandler uploadFormHandler;
     UpdateProductsHandler updateHandler;
     UploadsHandler uploadsHandler;
     CSSHandler cssHandler;
     LoginHandler loginHandler;
-    RegisterHandler registerHandler; // <--- Add this
-    LogoutHandler logoutHandler; // <--- Add this
-    ResetPasswordHandler resetHandler;
+    RegisterHandler registerHandler;
+    LogoutHandler logoutHandler;
     UpdateProductWithImageHandler updateWithImageHandler;
     AdminProfileHandler adminHandler;
 
-    // Prefix all routes with /root/supplierbuyer
-    server.addHandler("/root/supplierbuyer/api/products", productsHandler);
-    server.addHandler("/root/supplierbuyer/api/upload_product", uploadHandler);
-    server.addHandler("/root/supplierbuyer/api/update_products", updateHandler);
-    server.addHandler("/root/supplierbuyer/api/messages", new MessageHandler());
-    server.addHandler("/root/supplierbuyer/api/admin_profile", adminHandler);
-    server.addHandler("/root/supplierbuyer/api/update_admin", adminHandler);
+    // --- FIX: Remove "/root/" from all addHandler paths ---
+    // These must be the URLs you type in the browser
+    server.addHandler("/api/products", productsHandler);
+    server.addHandler("/api/upload_product", uploadHandler);
+    server.addHandler("/api/update_products", updateHandler);
+    server.addHandler("/api/messages", new MessageHandler());
+    server.addHandler("/api/admin_profile", adminHandler);
+    server.addHandler("/api/update_admin", adminHandler);
     
-    // Auth Routes
-    server.addHandler("/root/supplierbuyer/login", loginHandler);
-    server.addHandler("/root/supplierbuyer/register", registerHandler);
-    server.addHandler("/root/supplierbuyer/logout", logoutHandler);
+    // Auth Routes - Matches your HTML Form Action
+    server.addHandler("/supplierbuyer/login", loginHandler);
+    server.addHandler("/supplierbuyer/register", registerHandler);
+    server.addHandler("/supplierbuyer/logout", logoutHandler);
 
-    // Static Files (HTML/CSS/Images)
-    // Note: Ensure your local folder structure matches or adjust the handler
-    server.addHandler("/root/supplierbuyer/", cssHandler); 
-    server.addHandler("/root/supplierbuyer/uploads/", uploadsHandler);
+    // Static File Handlers
+    server.addHandler("/supplierbuyer/", cssHandler); 
+    server.addHandler("/uploads/", uploadsHandler);
 
-    std::cout << "Server running at http://localhost:8080/root/supplierbuyer/supplierbuyerhome.html\n";
-
-    while (true) { sleep(1); }
+    std::cout << "Server started on port 8080!\n";
+    std::cout << "URL: http://bdvzrechjf2pkx6pemuwcc4htizigz3iosmu2g75ti76awgwg26nwwyd.onion/supplierbuyer/auth/loginpage.html\n";
 
     while (true) {
         sleep(1);
-
     }
+    return 0;
 }
