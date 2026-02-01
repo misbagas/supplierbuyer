@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
 
-/* ================= PRODUCTS API ================= */
+
 class ProductsHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
@@ -47,7 +47,6 @@ public:
     }
 };
 
-/* ================= UPLOAD API ================= */
 class UploadHandler : public CivetHandler {
 private:
     std::string extractFilename(const std::string& header) {
@@ -82,7 +81,7 @@ public:
         std::string ct = mg_get_header(conn, "Content-Type");
         size_t bpos = ct.find("boundary=");
         std::string boundary = "--" + ct.substr(bpos + 9);
-        
+
         // Data Buffers
         char pName[256] = {0}, pPrice[64] = {0}, pDesc[512] = {0};
         std::vector<std::string> imageUrls;
@@ -105,7 +104,7 @@ public:
 
             size_t next_b = data.find(boundary, pos);
             if (next_b == std::string::npos) break;
-            
+
             size_t c_end = next_b - 2; // Remove CRLF
             std::string content = data.substr(pos, c_end - pos);
 
@@ -114,7 +113,7 @@ public:
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
                 std::string fullPath = "/root/supplierbuyer/uploads/" + safeName;
-                
+
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
                     file.write(content.c_str(), content.size());
@@ -155,7 +154,7 @@ else if (field == "description") {
         products.push_back(newProd);
         std::ofstream out(PRODUCT_FILE);
         out << products.dump(2);
-        
+
         // Redirect back
         mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\n\r\n");
         return true;
@@ -183,7 +182,7 @@ public:
         while (pos != std::string::npos && pos < data.length()) {
             pos += boundary.length();
             if (data.substr(pos, 2) == "--") break;
-            pos += 2; 
+            pos += 2;
 
             size_t header_end = data.find("\r\n\r\n", pos);
             if (header_end == std::string::npos) break;
@@ -192,7 +191,7 @@ public:
             size_t npos = header.find("name=\"");
             size_t nend = header.find("\"", npos + 6);
             std::string field = header.substr(npos + 6, nend - (npos + 6));
-            
+
             size_t fnpos = header.find("filename=\"");
             bool isFile = (fnpos != std::string::npos);
 
@@ -226,7 +225,7 @@ if (pIndex >= 0 && pIndex < (int)products.size()) {
     products[pIndex]["name"] = pName;
     products[pIndex]["price"] = std::atof(pPrice.c_str());
     products[pIndex]["description"] = pDesc;
-    
+
     // 🔹 Only update image if a new one was actually uploaded
     if (!newImageUrl.empty()) {
         products[pIndex]["image"] = newImageUrl;
@@ -310,7 +309,7 @@ public:
         return true;
     }
 };
-/* ================= ADMIN PROFILE API ================= */
+
 class AdminProfileHandler : public CivetHandler {
 private:
     const std::string USER_FILE = "/root/supplierbuyer/users.json";
@@ -331,13 +330,13 @@ public:
         std::ifstream in(USER_FILE);
         json users = json::array();
         if (in.is_open()) in >> users;
-        
+
         json currentUser = (!users.empty()) ? users[0] : json::object({{"username", "Admin"}, {"description", ""}, {"photo", ""}});
         currentUser.erase("password");
         std::string body = currentUser.dump();
 
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
-                        "Access-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", 
+                        "Access-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s",
                   body.size(), body.c_str());
         return true;
     }
@@ -382,13 +381,13 @@ public:
 
         std::ofstream out(USER_FILE);
         out << users.dump(4);
-        
+
         std::string resp = "{\"success\":true}";
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n%s", resp.c_str());
         return true;
     }
 };
-/* ================= UPDATE PRODUCTS API ================= */
+
 class UpdateProductsHandler : public CivetHandler {
 public:
     bool handlePost(CivetServer* server, struct mg_connection* conn) override {
@@ -404,7 +403,7 @@ public:
         try {
             // Validate that the body is valid JSON
             auto updatedProducts = json::parse(body);
-            
+
             // Overwrite products.json with the new list
             std::ofstream out("/root/supplierbuyer/products.json");
             out << updatedProducts.dump(4);
@@ -425,13 +424,13 @@ public:
         return true;
     }
 };
-/* ================= UPLOADS STATIC FILE HANDLER ================= */
+
 class UploadsHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-        
+
         // Remove /uploads/ prefix
         if (uri.find("/uploads/") == 0) {
             uri = uri.substr(9);  // Remove "/uploads/"
@@ -487,13 +486,13 @@ public:
         return true;
     }
 };
-/* ================= CSS STATIC FILE HANDLER ================= */
+
 class CSSHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-        
+
         // Remove /supplierbuyer/ prefix
         std::string filepath_suffix = uri;
         if (uri.find("/supplierbuyer/") == 0) {
@@ -591,7 +590,7 @@ public:
                 return true;
     }
 };
-/* ================= LOGIN HANDLER ================= */
+
 class LoginHandler : public CivetHandler {
 public:
     bool handlePost(CivetServer*, struct mg_connection* conn) override {
@@ -630,13 +629,12 @@ public:
             // Redirect to dashboard on success
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\n\r\n");
         } else {
-            // Redirect to login page with error on failure
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\n\r\n");
         }
         return true;
     }
 };
-/* ================= LOGOUT HANDLER ================= */
+
 class LogoutHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer* server, struct mg_connection* conn) override {
@@ -697,7 +695,6 @@ public:
     }
 };
 
-/* ================= MESSAGE SYSTEM ================= */
 struct Message {
     std::string product_id;
     std::string sender;
@@ -705,7 +702,6 @@ struct Message {
     std::string timestamp;
 };
 
-/* ================= MESSAGING API ================= */
 class MessageHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
@@ -734,7 +730,7 @@ public:
             {"sender", sender},
             {"receiver", receiver},
             {"text", text},
-            {"timestamp", (long long)time(nullptr) * 1000} 
+            {"timestamp", (long long)time(nullptr) * 1000}
         };
 
         json messages = json::array();
@@ -795,15 +791,20 @@ int main() {
     server.addHandler("/api/messages", new MessageHandler());
     server.addHandler("/api/admin_profile", adminHandler);
     server.addHandler("/api/update_admin", adminHandler);
-    
+
     // Auth Routes - Matches your HTML Form Action
     server.addHandler("/supplierbuyer/login", loginHandler);
     server.addHandler("/supplierbuyer/register", registerHandler);
     server.addHandler("/supplierbuyer/logout", logoutHandler);
+    // Static File Handlers
+    server.addHandler("/supplierbuyer/", cssHandler);
+    server.addHandler("/uploads/", uploadsHandler);
+
 
     // Static File Handlers
-    server.addHandler("/supplierbuyer/", cssHandler); 
+    server.addHandler("/supplierbuyer/", cssHandler);
     server.addHandler("/uploads/", uploadsHandler);
+
 
     std::cout << "Server started on port 8080!\n";
     std::cout << "URL: http://bdvzrechjf2pkx6pemuwcc4htizigz3iosmu2g75ti76awgwg26nwwyd.onion/supplierbuyer/auth/loginpage.html\n";
@@ -812,4 +813,4 @@ int main() {
         sleep(1);
     }
     return 0;
-}
+};
