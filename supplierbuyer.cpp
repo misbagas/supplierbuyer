@@ -7,6 +7,8 @@
 #include "json.hpp"
 #include <cstring>
 #include <vector>
+#include "platform.h"
+#include <unistd.h>
 
 using json = nlohmann::json;
 
@@ -116,9 +118,19 @@ public:
                 }
             } else {
                 // It's a text field
-                if (field == "name") strncpy_s(pName, content.c_str(), _TRUNCATE);
-                else if (field == "price") strncpy_s(pPrice, content.c_str(), _TRUNCATE);
-                else if (field == "description") strncpy_s(pDesc, content.c_str(), _TRUNCATE);
+               if (field == "name") {
+    strncpy(pName, content.c_str(), sizeof(pName) - 1);
+    pName[sizeof(pName) - 1] = '\0';
+}
+else if (field == "price") {
+    strncpy(pPrice, content.c_str(), sizeof(pPrice) - 1);
+    pPrice[sizeof(pPrice) - 1] = '\0';
+}
+else if (field == "description") {
+    strncpy(pDesc, content.c_str(), sizeof(pDesc) - 1);
+    pDesc[sizeof(pDesc) - 1] = '\0';
+}
+
             }
             pos = next_b;
         }
@@ -421,7 +433,7 @@ public:
         }
 
         char filepath[512];
-        sprintf_s(filepath, sizeof(filepath),
+        snprintf(filepath, sizeof(filepath),
             "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\\%s",
             uri.c_str());
 
@@ -706,7 +718,7 @@ public:
             {"sender", sender},
             {"receiver", receiver},
             {"text", text},
-            {"timestamp", GetTickCount()} 
+            {"timestamp", (long long)time(nullptr) * 1000} 
         };
 
         json messages = json::array();
@@ -762,26 +774,29 @@ int main() {
     UpdateProductWithImageHandler updateWithImageHandler;
     AdminProfileHandler adminHandler;
 
-    server.addHandler("/api/products", productsHandler);
-    server.addHandler("/api/upload_product", uploadHandler);
-    server.addHandler("/upload_product", uploadFormHandler);
-    server.addHandler("/api/update_products", updateHandler);
-    server.addHandler("/uploads/", uploadsHandler);
-    server.addHandler("/supplierbuyer/", cssHandler);
-    server.addHandler("/login", loginHandler); // <--- Add this line
-    server.addHandler("/register", registerHandler); // <--- Link to /register
-    server.addHandler("/logout", logoutHandler); // <--- Add this line
-    server.addHandler("/reset_password", resetHandler);
-    server.addHandler("/api/messages", new MessageHandler());
-    server.addHandler("/api/update_product_with_image", updateWithImageHandler);
-    server.addHandler("/api/admin_profile", adminHandler);
-    server.addHandler("/api/update_admin", adminHandler);
+    // Prefix all routes with /root/supplierbuyer
+    server.addHandler("/root/supplierbuyer/api/products", productsHandler);
+    server.addHandler("/root/supplierbuyer/api/upload_product", uploadHandler);
+    server.addHandler("/root/supplierbuyer/api/update_products", updateHandler);
+    server.addHandler("/root/supplierbuyer/api/messages", new MessageHandler());
+    server.addHandler("/root/supplierbuyer/api/admin_profile", adminHandler);
+    server.addHandler("/root/supplierbuyer/api/update_admin", adminHandler);
+    
+    // Auth Routes
+    server.addHandler("/root/supplierbuyer/login", loginHandler);
+    server.addHandler("/root/supplierbuyer/register", registerHandler);
+    server.addHandler("/root/supplierbuyer/logout", logoutHandler);
 
-    std::cout << "Server running at http://localhost:8080\n";
-    std::cout << "Dashboard: http://localhost:8080/supplierbuyer/supplierbuyerdash.html\n";
-    std::cout << "Uploads folder: C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\n";
+    // Static Files (HTML/CSS/Images)
+    // Note: Ensure your local folder structure matches or adjust the handler
+    server.addHandler("/root/supplierbuyer/", cssHandler); 
+    server.addHandler("/root/supplierbuyer/uploads/", uploadsHandler);
+
+    std::cout << "Server running at http://localhost:8080/root/supplierbuyer/supplierbuyerhome.html\n";
+
+    while (true) { Sleep(1); }
 
     while (true) {
-        Sleep(1000);
+        Sleep(1);
     }
 }
