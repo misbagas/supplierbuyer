@@ -108,7 +108,7 @@ public:
                 // It's a file
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
-                std::string fullPath = "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\\" + safeName;
+                std::string fullPath = "/root/supplierbuyer/uploads" + safeName;
                 
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
@@ -197,7 +197,7 @@ public:
 
             if (isFile && !content.empty()) {
                 std::string safeName = "updated_" + std::to_string(time(0)) + ".jpg";
-                std::ofstream file("C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\\" + safeName, std::ios::binary);
+                std::ofstream file("/root/supplierbuyer/uploads" + safeName, std::ios::binary);
                 file.write(content.c_str(), content.size());
                 newImageUrl = "/uploads/" + safeName;
             } else {
@@ -434,7 +434,7 @@ public:
 
         char filepath[512];
         snprintf(filepath, sizeof(filepath),
-            "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\\%s",
+            "/root/supplierbuyer/uploads%s",
             uri.c_str());
 
         fprintf(stderr, "📥 Serving file request: %s\n", filepath);
@@ -497,7 +497,7 @@ public:
 
         char filepath[512];
         snprintf(filepath, sizeof(filepath),
-            "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\supplierbuyer\\%s",
+            "/root/supplierbuyer/supplierbuyer%s",
             filepath_suffix.c_str());
 
         fprintf(stderr, "📥 Serving request: %s\n", filepath);
@@ -752,7 +752,7 @@ private:
 // server.addHandler("/api/messages", new MessageHandler());
 int main() {
     const char* options[] = {
-        "document_root", "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer",
+        "document_root", "/root/supplierbuyer",
         "listening_ports", "8080",
         "enable_directory_listing", "no",
         "index_files", "supplierbuyer/supplierbuyer.html",
