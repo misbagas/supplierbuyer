@@ -496,7 +496,7 @@ public:
         }
 
         char filepath[512];
-        sprintf_s(filepath, sizeof(filepath),
+        snprintf(filepath, sizeof(filepath),
             "C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\supplierbuyer\\%s",
             filepath_suffix.c_str());
 
@@ -794,9 +794,10 @@ int main() {
 
     std::cout << "Server running at http://localhost:8080/root/supplierbuyer/supplierbuyerhome.html\n";
 
-    while (true) { Sleep(1); }
+    while (true) { sleep(1); }
 
     while (true) {
-        Sleep(1);
+        sleep(1);
+
     }
 }
