@@ -796,6 +796,7 @@ int main() {
     server.addHandler("/supplierbuyer/login", loginHandler);
     server.addHandler("/supplierbuyer/register", registerHandler);
     server.addHandler("/supplierbuyer/logout", logoutHandler);
+    server.addHandler("/reset_password", new ResetPasswordHandler());
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
     server.addHandler("/uploads/", uploadsHandler);
