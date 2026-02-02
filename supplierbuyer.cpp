@@ -17,7 +17,7 @@
 
 using json = nlohmann::json;
 
-static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
+static const char* PRODUCT_FILE = "./products.json";
 
 
 class ProductsHandler : public CivetHandler {
@@ -112,7 +112,7 @@ public:
                 // It's a file
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
-                std::string fullPath = "/root/supplierbuyer/uploads/" + safeName;
+                std::string fullPath = "./uploads/" + safeName;
 
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
@@ -201,7 +201,7 @@ public:
 
             if (isFile && !content.empty()) {
                 std::string safeName = "updated_" + std::to_string(time(0)) + ".jpg";
-                std::ofstream file("/root/supplierbuyer/uploads/" + safeName, std::ios::binary);
+                std::ofstream file("./uploads/" + safeName, std::ios::binary);
                 file.write(content.c_str(), content.size());
                 newImageUrl = "/uploads/" + safeName;
             } else {
@@ -215,7 +215,7 @@ public:
 
 // Inside UpdateProductWithImageHandler::handlePost
 json products;
-std::ifstream in("/root/supplierbuyer/products.json");
+std::ifstream in("./products.json");
 if (in.is_open()) {
     in >> products;
     in.close();
@@ -231,7 +231,7 @@ if (pIndex >= 0 && pIndex < (int)products.size()) {
         products[pIndex]["image"] = newImageUrl;
     }
 
-    std::ofstream out("/root/supplierbuyer/products.json");
+    std::ofstream out("./products.json");
     out << products.dump(4);
     out.close();
 }
@@ -312,7 +312,7 @@ public:
 
 class AdminProfileHandler : public CivetHandler {
 private:
-    const std::string USER_FILE = "/root/supplierbuyer/users.json";
+    const std::string USER_FILE = "./users.json";
 
     // Helper to extract text fields from multipart
     std::string getField(const std::string& body, const std::string& key) {
@@ -369,7 +369,7 @@ public:
             if (end > start) {
                 std::string fileData = body.substr(start, end - start);
                 std::string fileName = "profile_" + users[0]["username"].get<std::string>() + ".jpg";
-                std::string fullPath = "/root/supplierbuyer/uploads/" + fileName;
+                std::string fullPath = "./uploads/" + fileName;
 
                 std::ofstream outFile(fullPath, std::ios::binary);
                 outFile.write(fileData.data(), fileData.size());
@@ -405,7 +405,7 @@ public:
             auto updatedProducts = json::parse(body);
 
             // Overwrite products.json with the new list
-            std::ofstream out("/root/supplierbuyer/products.json");
+            std::ofstream out("./products.json");
             out << updatedProducts.dump(4);
             out.close();
 
@@ -430,7 +430,7 @@ public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-
+        
         // Remove /uploads/ prefix
         if (uri.find("/uploads/") == 0) {
             uri = uri.substr(9);  // Remove "/uploads/"
@@ -438,7 +438,7 @@ public:
 
         char filepath[512];
         snprintf(filepath, sizeof(filepath),
-            "/root/supplierbuyer/uploads%s",
+            "./uploads/%s",  // 🔹 ADDED MISSING "/"
             uri.c_str());
 
         fprintf(stderr, "📥 Serving file request: %s\n", filepath);
@@ -492,7 +492,7 @@ public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-
+        
         // Remove /supplierbuyer/ prefix
         std::string filepath_suffix = uri;
         if (uri.find("/supplierbuyer/") == 0) {
@@ -502,9 +502,9 @@ public:
         // 🔹 If the request is for loginpage.html, serve from auth folder
         std::string full_path;
         if (filepath_suffix == "loginpage.html") {
-            full_path = "/root/supplierbuyer/supplierbuyer/auth/loginpage.html";
+            full_path = "./supplierbuyer/auth/loginpage.html";
         } else {
-            full_path = "/root/supplierbuyer/supplierbuyer" + filepath_suffix;
+            full_path = "./supplierbuyer/" + filepath_suffix;  // 🔹 ADDED MISSING "/"
         }
 
         char filepath[512];
@@ -577,7 +577,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", answer, sizeof(answer));
 
         // Save Format: user:pass:question:answer
-        std::ofstream userFile("/root/supplierbuyer/users.txt", std::ios::app);
+        std::ofstream userFile("./users.txt", std::ios::app);
         if (userFile.is_open()) {
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
@@ -607,7 +607,7 @@ public:
         mg_get_var(post_data, dlen, "username", input_user, sizeof(input_user));
         mg_get_var(post_data, dlen, "password", input_pass, sizeof(input_pass));
 
-        std::ifstream userFile("/root/supplierbuyer/users.txt");
+        std::ifstream userFile("./users.txt");
         std::string line;
         bool authenticated = false;
 
@@ -660,7 +660,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", a_input, sizeof(a_input));
         mg_get_var(post_data, dlen, "new_password", new_pass, sizeof(new_pass));
 
-        std::ifstream inFile("/root/supplierbuyer/users.txt");
+        std::ifstream inFile("./users.txt");
         std::vector<std::string> lines;
         std::string line;
         bool success = false;
@@ -684,7 +684,7 @@ public:
         }
 
         if (success) {
-            std::ofstream outFile("/root/supplierbuyer/users.txt");
+            std::ofstream outFile("./users.txt");
             for (const auto& l : lines) outFile << l << "\n";
             outFile.close();
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\n\r\n");
@@ -763,7 +763,7 @@ private:
 // In your main() function, ensure this is added:
 int main() {
     const char* options[] = {
-        "document_root", "/root/supplierbuyer",
+        "document_root", ".",
         "listening_ports", "8080",
         "index_files", "supplierbuyer/supplierbuyer.html",
         nullptr
