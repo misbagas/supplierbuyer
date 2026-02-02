@@ -782,12 +782,15 @@ int main() {
     LogoutHandler logoutHandler;
     UpdateProductWithImageHandler updateWithImageHandler;
     AdminProfileHandler adminHandler;
+    UploadFormHandler uploadFormHandler;
 
     // --- FIX: Remove "/root/" from all addHandler paths ---
     // These must be the URLs you type in the browser
     server.addHandler("/api/products", productsHandler);
     server.addHandler("/api/upload_product", uploadHandler);
     server.addHandler("/api/update_products", updateHandler);
+    server.addHandler("/api/update_product_with_image", updateWithImageHandler);
+    server.addHandler("/upload_product", uploadFormHandler);
     server.addHandler("/api/messages", new MessageHandler());
     server.addHandler("/api/admin_profile", adminHandler);
     server.addHandler("/api/update_admin", adminHandler);
