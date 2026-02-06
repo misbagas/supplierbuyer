@@ -246,7 +246,7 @@ public:
 
             if (isFile && !content.empty()) {
                 std::string safeName = "updated_" + std::to_string(time(0)) + ".jpg";
-                std::ofstream file("/root/supplierbuyer/uploads/" + safeName, std::ios::binary);
+                std::ofstream file("uploads/" + safeName, std::ios::binary);
                 file.write(content.c_str(), content.size());
                 newImageUrl = "/uploads/" + safeName;
             } else {
@@ -483,7 +483,7 @@ public:
 
         char filepath[512];
         snprintf(filepath, sizeof(filepath),
-            "/root/supplierbuyer/uploads/%s",  // 🔹 ADDED MISSING "/"
+            "uploads/%s",
             uri.c_str());
 
         fprintf(stderr, "📥 Serving file request: %s\n", filepath);
@@ -547,9 +547,9 @@ public:
         // 🔹 If the request is for loginpage.html, serve from auth folder
         std::string full_path;
         if (filepath_suffix == "loginpage.html") {
-            full_path = "/root/supplierbuyer/supplierbuyer/auth/loginpage.html";
+            full_path = "supplierbuyer/auth/loginpage.html";
         } else {
-            full_path = "/root/supplierbuyer/supplierbuyer/" + filepath_suffix;  // 🔹 ADDED MISSING "/"
+            full_path = "supplierbuyer/" + filepath_suffix;
         }
 
         char filepath[512];
@@ -622,7 +622,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", answer, sizeof(answer));
 
         // Save Format: user:pass:question:answer
-        std::ofstream userFile("/root/supplierbuyer/users.txt", std::ios::app);
+        std::ofstream userFile("users.txt", std::ios::app);
         if (userFile.is_open()) {
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
@@ -652,7 +652,7 @@ public:
         mg_get_var(post_data, dlen, "username", input_user, sizeof(input_user));
         mg_get_var(post_data, dlen, "password", input_pass, sizeof(input_pass));
 
-        std::ifstream userFile("/root/supplierbuyer/users.txt");
+        std::ifstream userFile("users.txt");
         std::string line;
         bool authenticated = false;
 
@@ -705,7 +705,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", a_input, sizeof(a_input));
         mg_get_var(post_data, dlen, "new_password", new_pass, sizeof(new_pass));
 
-        std::ifstream inFile("/root/supplierbuyer/users.txt");
+        std::ifstream inFile("users.txt");
         std::vector<std::string> lines;
         std::string line;
         bool success = false;
@@ -729,7 +729,7 @@ public:
         }
 
         if (success) {
-            std::ofstream outFile("/root/supplierbuyer/users.txt");
+            std::ofstream outFile("users.txt");
             for (const auto& l : lines) outFile << l << "\n";
             outFile.close();
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\n\r\n");
@@ -745,7 +745,7 @@ public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         // Get visitor info through Civetweb instead of raw sockets
         const struct mg_request_info *ri = mg_get_request_info(conn);
-        std::ofstream logfile("/root/supplierbuyer/access.log", std::ios::app);
+        std::ofstream logfile("access.log", std::ios::app);
         logfile << ri->remote_addr << " - - [" << get_current_log_time() << "] \"GET / HTTP/1.1\" 200\n";
 
         std::string body = "<html><head><meta http-equiv=\"refresh\" content=\"0; url=/supplierbuyer/supplierbuyer.html\" /></head><body></body></html>";
@@ -830,6 +830,7 @@ int main() {
         "listening_ports", "8080",
         "index_files", "supplierbuyer/supplierbuyer.html",
         "error_log_file", "error.log",
+        "enable_directory_listing", "no",
         nullptr
     };
 
