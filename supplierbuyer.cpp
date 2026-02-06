@@ -743,11 +743,15 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
+        // Get visitor info through Civetweb instead of raw sockets
+        const struct mg_request_info *ri = mg_get_request_info(conn);
+        std::ofstream logfile("/root/supplierbuyer/access.log", std::ios::app);
+        logfile << ri->remote_addr << " - - [" << get_current_log_time() << "] \"GET / HTTP/1.1\" 200\n";
+
         std::string body = "<html><head><meta http-equiv=\"refresh\" content=\"0; url=/supplierbuyer/supplierbuyer.html\" /></head><body></body></html>";
         mg_printf(conn, "HTTP/1.1 200 OK\r\n"
                         "Content-Type: text/html\r\n"
                         "Content-Length: %zu\r\n"
-                        "Cache-Control: no-cache\r\n"
                         "Connection: close\r\n\r\n%s", 
                         body.size(), body.c_str());
         return true;

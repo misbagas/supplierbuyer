@@ -14,7 +14,7 @@ C_OBJECTS = $(C_SOURCES:.c=.o)
 OBJECTS = $(CPP_OBJECTS) $(C_OBJECTS)
 
 # Executable
-TARGET = supplierbuyer
+TARGET = supplierbuyer-server
 
 all: $(TARGET)
 
