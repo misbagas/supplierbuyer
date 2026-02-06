@@ -852,7 +852,7 @@ int main() {
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
     server.addHandler("/uploads/", uploadsHandler);
-
+    server.addHandler("/", cssHandler);  // Serves index_files
 
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
