@@ -23,7 +23,7 @@
 
 using json = nlohmann::json;
 
-static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
+static const char* PRODUCT_FILE = "products.json";
 
 std::string get_current_log_time() {
     std::time_t now = std::time(nullptr);
@@ -51,7 +51,7 @@ void handle_tor_visitor(int client_socket) {
         
         ss >> protocol >> version >> visitor_id;
 
-        std::ofstream logfile("/root/supplierbuyer/access.log", std::ios::app);
+        std::ofstream logfile("access.log", std::ios::app);
         if (logfile.is_open()) {
             logfile << visitor_id << " - - [" << get_current_log_time() << "] "
                     << "\"GET / HTTP/1.1\" 200\n";
@@ -157,7 +157,7 @@ public:
                 // It's a file
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
-                std::string fullPath = "/root/supplierbuyer/uploads/" + safeName;
+                std::string fullPath = "uploads/" + safeName;
 
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
@@ -260,7 +260,7 @@ public:
 
 // Inside UpdateProductWithImageHandler::handlePost
 json products;
-std::ifstream in("/root/supplierbuyer/products.json");
+std::ifstream in("products.json");
 if (in.is_open()) {
     in >> products;
     in.close();
@@ -276,7 +276,7 @@ if (pIndex >= 0 && pIndex < (int)products.size()) {
         products[pIndex]["image"] = newImageUrl;
     }
 
-    std::ofstream out("/root/supplierbuyer/products.json");
+    std::ofstream out("products.json");
     out << products.dump(4);
     out.close();
 }
@@ -357,7 +357,7 @@ public:
 
 class AdminProfileHandler : public CivetHandler {
 private:
-    const std::string USER_FILE = "/root/supplierbuyer/users.json";
+    const std::string USER_FILE = "users.json";
 
     // Helper to extract text fields from multipart
     std::string getField(const std::string& body, const std::string& key) {
@@ -414,7 +414,7 @@ public:
             if (end > start) {
                 std::string fileData = body.substr(start, end - start);
                 std::string fileName = "profile_" + users[0]["username"].get<std::string>() + ".jpg";
-                std::string fullPath = "/root/supplierbuyer/uploads/" + fileName;
+                std::string fullPath = "uploads/" + fileName;
 
                 std::ofstream outFile(fullPath, std::ios::binary);
                 outFile.write(fileData.data(), fileData.size());
@@ -450,7 +450,7 @@ public:
             auto updatedProducts = json::parse(body);
 
             // Overwrite products.json with the new list
-            std::ofstream out("/root/supplierbuyer/products.json");
+            std::ofstream out("products.json");
             out << updatedProducts.dump(4);
             out.close();
 
@@ -826,11 +826,11 @@ private:
 // In your main() function, ensure this is added:
 int main() {
     const char* options[] = {
-        "document_root", "/root/supplierbuyer",
+        "document_root", ".",
         "listening_ports", "8080",
         "index_files", "supplierbuyer/supplierbuyer.html",
         "enable_keep_alive", "yes",
-        "error_log_file", "/root/supplierbuyer/error.log",
+        "error_log_file", "error.log",
         nullptr
     };
 
