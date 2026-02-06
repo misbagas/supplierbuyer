@@ -829,7 +829,6 @@ int main() {
         "document_root", ".",
         "listening_ports", "8080",
         "index_files", "supplierbuyer/supplierbuyer.html",
-        "enable_keep_alive", "yes",
         "error_log_file", "error.log",
         nullptr
     };
