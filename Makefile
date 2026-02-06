@@ -1,19 +1,17 @@
 CXX = g++
 CC = gcc
 
-CXXFLAGS = -std=c++11 -Wall -Wextra -O2
-CFLAGS = -Wall -Wextra -O2
+CXXFLAGS = -std=c++11 -Wall -Wextra -O2 -DOPENSSL_API_1_1
+CFLAGS   = -Wall -Wextra -O2 -DOPENSSL_API_1_1
 
 LDFLAGS = -lcurl -lssl -lcrypto -lpthread -ldl
 
-# Source files
 CPP_SOURCES = supplierbuyer.cpp CivetServer.cpp
-C_SOURCES = civetweb.c sqlite3.c shell.c
+C_SOURCES   = civetweb.c sqlite3.c shell.c
 
-# Object files
 CPP_OBJECTS = $(CPP_SOURCES:.cpp=.o)
-C_OBJECTS = $(C_SOURCES:.c=.o)
-OBJECTS = $(CPP_OBJECTS) $(C_OBJECTS)
+C_OBJECTS   = $(C_SOURCES:.c=.o)
+OBJECTS     = $(CPP_OBJECTS) $(C_OBJECTS)
 
 TARGET = supplierbuyer-server
 
