@@ -17,6 +17,9 @@
 #include <sstream>      // For string parsing     
 #include <iomanip>      // For std::put_time
 #include <sys/socket.h> // For recv()
+#include <arpa/inet.h>  // For inet_ntop() if you use it
+#include <netinet/in.h>
+#include <sys/types.h>
 
 using json = nlohmann::json;
 
