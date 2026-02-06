@@ -36,7 +36,7 @@ std::string get_current_log_time() {
 
 void handle_tor_visitor(int client_socket) {
     char buffer[1024] = {0};
-    
+    ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, MSG_PEEK); // Use MSG_PEEK
     // 1. Read the PROXY header sent by Tor
     // Tor sends: PROXY TCP4 [Unique_Visitor_ID] [Server_IP] [Src_Port] [Dst_Port]\r\n
     ssize_t bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
@@ -59,6 +59,7 @@ void handle_tor_visitor(int client_socket) {
         if (logfile.is_open()) {
             logfile << visitor_id << " - - [" << get_current_log_time() << "] "
                     << "\"GET / HTTP/1.1\" 200 0 \"-\" \"Tor-Browser\"\n";
+                    << ri->request_method << " " << ri->request_uri << " 200\n";
             logfile.close();
         }
     }
