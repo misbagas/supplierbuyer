@@ -744,6 +744,16 @@ public:
     }
 };
 
+class RootHandler : public CivetHandler {
+public:
+    bool handleGet(CivetServer*, struct mg_connection* conn) override {
+        mg_printf(conn, "HTTP/1.1 302 Found\r\n"
+                        "Location: /supplierbuyer/supplierbuyer.html\r\n"
+                        "Content-Length: 0\r\n\r\n");
+        return true;
+    }
+};
+
 struct Message {
     std::string product_id;
     std::string sender;
@@ -815,6 +825,7 @@ int main() {
         "document_root", "/root/supplierbuyer",
         "listening_ports", "8080",
         "index_files", "supplierbuyer/supplierbuyer.html",
+        "enable_keep_alive", "yes",
         nullptr
     };
 
@@ -832,6 +843,7 @@ int main() {
     UpdateProductWithImageHandler updateWithImageHandler;
     AdminProfileHandler adminHandler;
     UploadFormHandler uploadFormHandler;
+    RootHandler rootHandler;
 
     // --- FIX: Remove "/root/" from all addHandler paths ---
     // These must be the URLs you type in the browser
@@ -849,11 +861,10 @@ int main() {
     server.addHandler("/supplierbuyer/register", registerHandler);
     server.addHandler("/supplierbuyer/logout", logoutHandler);
     server.addHandler("/reset_password", new ResetPasswordHandler());
-    // Static File Handlers
-    server.addHandler("/supplierbuyer/", cssHandler);
-    server.addHandler("/uploads/", uploadsHandler);
-    server.addHandler("/", cssHandler);  // Serves index_files
-
+    
+    // Root Handler - Redirect to main page
+    server.addHandler("/", rootHandler);
+    
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
     server.addHandler("/uploads/", uploadsHandler);
