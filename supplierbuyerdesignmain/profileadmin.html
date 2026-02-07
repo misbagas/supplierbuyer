@@ -137,8 +137,8 @@
             
             if (result.success) {
                 showStatus("✅ Profile updated successfully!");
-                // Reload after short delay to show the new image/username
-                setTimeout(() => window.location.reload(), 1500);
+                // Reload profile data instead of full page reload
+                setTimeout(() => loadProfile(), 1500);
             } else {
                 showStatus("❌ Error: " + (result.message || "Save failed"), true);
             }

@@ -870,6 +870,7 @@ int main() {
     server.addHandler("/reset_password", new ResetPasswordHandler());
     
     // Root Handler - Redirect to main page
+    server.addHandler("/", rootHandler);
     
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
