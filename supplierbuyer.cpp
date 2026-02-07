@@ -830,7 +830,7 @@ int main() {
     const char* options[] = {
         "document_root", ".",
         "listening_ports", "8080",
-        // "index_files", "supplierbuyer/supplierbuyer.html",
+        "index_files", "supplierbuyer/supplierbuyer.html",
         "error_log_file", "error.log",
         "enable_directory_listing", "no",
         nullptr
@@ -870,7 +870,6 @@ int main() {
     server.addHandler("/reset_password", new ResetPasswordHandler());
     
     // Root Handler - Redirect to main page
-    server.addHandler("/", rootHandler);
     
     // Static File Handlers
     server.addHandler("/supplierbuyer/", cssHandler);
