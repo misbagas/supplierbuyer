@@ -201,7 +201,7 @@ else if (field == "description") {
         out << products.dump(2);
 
         // Redirect back
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\n\r\n");
+        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
         return true;
     }
 };
@@ -630,7 +630,7 @@ public:
 
         mg_printf(conn,
             "HTTP/1.1 302 Found\r\n"
-            "Location: /supplierbuyer/supplierbuyerdash.html\r\n" // Redirect to the dashboard URL
+            "Location: /supplierbuyer/auth/loginpage.html\r\n"
             "Content-Length: 0\r\n\r\n");
                 return true;
     }
@@ -672,9 +672,9 @@ public:
 
         if (authenticated) {
             // Redirect to dashboard on success
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
         } else {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
         }
         return true;
     }
@@ -743,17 +743,35 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        // Get visitor info through Civetweb instead of raw sockets
+        // Get visitor info
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::ofstream logfile("access.log", std::ios::app);
         logfile << ri->remote_addr << " - - [" << get_current_log_time() << "] \"GET / HTTP/1.1\" 200\n";
+        logfile.close();
 
-        std::string body = "<html><head><meta http-equiv=\"refresh\" content=\"0; url=/supplierbuyer/supplierbuyer.html\" /></head><body></body></html>";
+        // Serve the home page directly
+        std::string filepath = "supplierbuyer/supplierbuyer.html";
+        std::ifstream file(filepath, std::ios::binary);
+        if (!file.is_open()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
+
+        file.seekg(0, std::ios::end);
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+        file.close();
+
         mg_printf(conn, "HTTP/1.1 200 OK\r\n"
                         "Content-Type: text/html\r\n"
                         "Content-Length: %zu\r\n"
-                        "Connection: close\r\n\r\n%s", 
-                        body.size(), body.c_str());
+                        "Cache-Control: public, max-age=3600\r\n"
+                        "Connection: close\r\n\r\n",
+                        size);
+        mg_write(conn, buffer.data(), size);
         return true;
     }
 };

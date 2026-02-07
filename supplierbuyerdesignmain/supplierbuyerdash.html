@@ -463,7 +463,7 @@ function saveEdit() {
         if (data.success) {
             alert("Product updated successfully!");
             closeEditModal();
-            location.reload(); 
+            loadProducts();  // Reload products instead of page reload
         } else {
             alert('Update failed on server');
         }
