@@ -876,6 +876,10 @@ int main() {
     server.addHandler("/supplierbuyer/", cssHandler);
     server.addHandler("/uploads/", uploadsHandler);
 
+    server.addHandler("/favicon.ico", [](CivetServer*, struct mg_connection* conn) -> bool {
+        mg_printf(conn, "HTTP/1.1 204 No Content\r\n\r\n");
+        return true;
+    });
 
     std::cout << "Server started on port 8080!\n";
     std::cout << "URL: http://bdvzrechjf2pkx6pemuwcc4htizigz3iosmu2g75ti76awgwg26nwwyd.onion/supplierbuyer/auth/loginpage.html\n";
