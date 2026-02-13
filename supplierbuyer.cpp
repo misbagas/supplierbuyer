@@ -13,6 +13,7 @@
 // System Headers
 #ifdef _WIN32
   #include <windows.h>
+  #include <direct.h>
 #else
   #include <unistd.h>
 #endif
@@ -26,6 +27,7 @@ static const char* PRODUCT_FILE = "products.json";
 static const char* USERS_FILE = "users.json";
 static const char* MESSAGES_FILE = "messages.json";
 static const char* UI_DIR = "supplierbuyerdesignmain";
+static const char* UPLOADS_DIR = "uploads";
 // --- Helper Functions ---
 
 std::string get_current_log_time() {
@@ -44,7 +46,7 @@ std::string mapUrlToFilePath(const std::string& uri) {
         return std::string(UI_DIR) + "/" + suffix;
     }
     if (uri.find("/uploads/") == 0) {
-        return "uploads/" + uri.substr(9);
+        return std::string(UPLOADS_DIR) + "/" + uri.substr(9);
     }
     return "";
 }
@@ -149,7 +151,7 @@ public:
             if (!fname.empty()) {
                 std::string ext = fname.substr(fname.find_last_of(".") + 1);
                 std::string safeName = generateSimpleFilename(fname, ext);
-                std::string fullPath = "uploads/" + safeName;
+                std::string fullPath = std::string(UPLOADS_DIR) + "/" + safeName;
                 std::ofstream file(fullPath, std::ios::binary);
                 if (file.is_open()) {
                     file.write(content.c_str(), content.size());
@@ -228,7 +230,7 @@ public:
 
             if (isFile && !content.empty()) {
                 std::string safeName = "updated_" + std::to_string(time(0)) + ".jpg";
-                std::ofstream file("uploads/" + safeName, std::ios::binary);
+                std::ofstream file(std::string(UPLOADS_DIR) + "/" + safeName, std::ios::binary);
                 file.write(content.c_str(), content.size());
                 newImageUrl = "/uploads/" + safeName;
             } else {
@@ -241,7 +243,7 @@ public:
         }
 
         json products;
-        std::ifstream in("products.json");
+        std::ifstream in(PRODUCT_FILE);
         if (in.is_open()) in >> products;
 
         if (pIndex >= 0 && pIndex < (int)products.size()) {
@@ -250,7 +252,7 @@ public:
             products[pIndex]["description"] = pDesc;
             if (!newImageUrl.empty()) products[pIndex]["image"] = newImageUrl;
 
-            std::ofstream out("products.json");
+            std::ofstream out(PRODUCT_FILE);
             out << products.dump(4);
         }
 
@@ -344,7 +346,7 @@ public:
             if (end > start) {
                 std::string fileData = body.substr(start, end - start);
                 std::string fileName = "profile_" + users[0]["username"].get<std::string>() + ".jpg";
-                std::ofstream outFile("uploads/" + fileName, std::ios::binary);
+                std::ofstream outFile(std::string(UPLOADS_DIR) + "/" + fileName, std::ios::binary);
                 outFile.write(fileData.data(), fileData.size());
                 users[0]["photo"] = "/uploads/" + fileName;
             }
@@ -367,7 +369,7 @@ public:
 
         try {
             auto updatedProducts = json::parse(body);
-            std::ofstream out("products.json");
+            std::ofstream out(PRODUCT_FILE);
             out << updatedProducts.dump(4);
             std::string response = "{\"success\": true}";
             mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
@@ -637,6 +639,13 @@ public:
 // --- Main Server Setup ---
 
 int main() {
+    // Try to change to the working directory
+    #ifdef _WIN32
+        _chdir("/root/supplierbuyer");
+    #else
+        chdir("/root/supplierbuyer");
+    #endif
+
     const char* options[] = {
         "document_root", ".",
         "listening_ports", "8080",
@@ -645,7 +654,19 @@ int main() {
         nullptr
     };
 
-    CivetServer server(options);
+    CivetServer* server = nullptr;
+    try {
+        server = new CivetServer(options);
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to start server: " << e.what() << std::endl;
+        std::cerr << "Make sure /root/supplierbuyer exists and port 8080 is available." << std::endl;
+        return 1;
+    }
+
+    if (server == nullptr) {
+        std::cerr << "Server initialization failed." << std::endl;
+        return 1;
+    }
 
     // Initialize Handler Instances
     RootHandler rootHandler;
@@ -667,34 +688,37 @@ int main() {
     // --- Route Registration ---
     
     // 1. Root & Favicon
-    server.addHandler("/", rootHandler);
-    server.addHandler("/favicon.ico", faviconHandler);
+    server->addHandler("/", rootHandler);
+    server->addHandler("/favicon.ico", faviconHandler);
 
     // 2. API Routes
-    server.addHandler("/api/products", productsHandler);
-    server.addHandler("/api/upload_product", uploadHandler);
-    server.addHandler("/api/update_products", updateHandler);
-    server.addHandler("/api/update_product_with_image", updateWithImageHandler);
-    server.addHandler("/upload_product", uploadFormHandler);
-    server.addHandler("/api/messages", messageHandler);
-    server.addHandler("/api/admin_profile", adminHandler);
-    server.addHandler("/api/update_admin", adminHandler);
+    server->addHandler("/api/products", productsHandler);
+    server->addHandler("/api/upload_product", uploadHandler);
+    server->addHandler("/api/update_products", updateHandler);
+    server->addHandler("/api/update_product_with_image", updateWithImageHandler);
+    server->addHandler("/upload_product", uploadFormHandler);
+    server->addHandler("/api/messages", messageHandler);
+    server->addHandler("/api/admin_profile", adminHandler);
+    server->addHandler("/api/update_admin", adminHandler);
 
     // 3. Auth Routes
-    server.addHandler("/supplierbuyer/login", loginHandler);
-    server.addHandler("/supplierbuyer/register", registerHandler);
-    server.addHandler("/supplierbuyer/logout", logoutHandler);
-    server.addHandler("/reset_password", resetHandler);
+    server->addHandler("/supplierbuyer/login", loginHandler);
+    server->addHandler("/supplierbuyer/register", registerHandler);
+    server->addHandler("/supplierbuyer/logout", logoutHandler);
+    server->addHandler("/reset_password", resetHandler);
     
     // 4. Static Files
-    server.addHandler("/supplierbuyer/", cssHandler);
-    server.addHandler("/uploads/", uploadsHandler);
+    server->addHandler("/supplierbuyer/", cssHandler);
+    server->addHandler("/uploads/", uploadsHandler);
 
     std::cout << "Server started on port 8080!\n";
+    std::cout << "Access: http://localhost:8080/supplierbuyer/supplierbuyer.html\n";
 
     while (true) {
         // FIXED: Replaced platform-specific sleep(1) with standard C++11
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    
+    delete server;
     return 0;
 }
