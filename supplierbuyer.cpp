@@ -7,21 +7,16 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include <thread>  // Added for sleep_for
-#include <chrono>  // Added for seconds
+#include <thread>
+#include <chrono>
 
 // System Headers
 #ifdef _WIN32
   #include <windows.h>
 #else
   #include <unistd.h>
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-  #include <netinet/in.h>
-  #include <sys/types.h>
 #endif
 
-// Third-party Headers
 #include "CivetServer.h"
 #include "json.hpp"
 
@@ -31,24 +26,21 @@ static const char* PRODUCT_FILE = "products.json";
 static const char* USERS_FILE = "users.json";
 static const char* MESSAGES_FILE = "messages.json";
 static const char* UI_DIR = "supplierbuyerdesignmain";
-
 // --- Helper Functions ---
 
 std::string get_current_log_time() {
     std::time_t now = std::time(nullptr);
     std::tm* now_tm = std::localtime(&now);
-    std::ostringstream oss;
-    oss << std::put_time(now_tm, "%d/%b/%Y:%H:%M:%S %z");
-    return oss.str();
+    char buf[100];
+    std::strftime(buf, sizeof(buf), "%d/%b/%Y:%H:%M:%S %z", now_tm);
+    return std::string(buf);
 }
 
-// Map URL path to file system path
 std::string mapUrlToFilePath(const std::string& uri) {
+    // Handle the specific subfolder mapping
     if (uri.find("/supplierbuyer/") == 0) {
-        std::string suffix = uri.substr(15); // Remove "/supplierbuyer/"
-        if (suffix == "loginpage.html" || suffix == "auth/loginpage.html") {
-            return std::string(UI_DIR) + "/auth/loginpage.html";
-        }
+        std::string suffix = uri.substr(15);
+        if (suffix.empty() || suffix == "/") return std::string(UI_DIR) + "/supplierbuyer.html";
         return std::string(UI_DIR) + "/" + suffix;
     }
     if (uri.find("/uploads/") == 0) {
@@ -78,12 +70,7 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        const struct mg_request_info *ri = mg_get_request_info(conn);
-        std::ofstream logfile("access.log", std::ios::app);
-        if (logfile.is_open()) {
-            logfile << ri->remote_addr << " - - [" << get_current_log_time() << "] \"GET / HTTP/1.1\" 302\n";
-            logfile.close();
-        }
+        // Redirect only the bare root to the main entry point
         mg_printf(conn, "HTTP/1.1 302 Found\r\n"
                         "Location: /supplierbuyer/supplierbuyer.html\r\n"
                         "Content-Length: 0\r\n\r\n");
@@ -521,7 +508,10 @@ public:
 class LogoutHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyer.html\r\nContent-Length: 0\r\n\r\n");
+        // Point to the static html page, not a route that triggers another redirect
+        mg_printf(conn, "HTTP/1.1 302 Found\r\n"
+                        "Location: /supplierbuyer/supplierbuyer.html\r\n"
+                        "Content-Length: 0\r\n\r\n");
         return true;
     }
 };
@@ -615,7 +605,35 @@ public:
         return true;
     }
 };
+class StaticFileHandler : public CivetHandler {
+public:
+    bool handleGet(CivetServer*, struct mg_connection* conn) override {
+        const struct mg_request_info *ri = mg_get_request_info(conn);
+        std::string filepath = mapUrlToFilePath(ri->request_uri);
 
+        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+        if (!file.is_open()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
+
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+
+        std::string ct = "text/plain";
+        if (filepath.find(".html") != std::string::npos) ct = "text/html";
+        else if (filepath.find(".css") != std::string::npos) ct = "text/css";
+        else if (filepath.find(".js") != std::string::npos) ct = "application/javascript";
+        else if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) ct = "image/jpeg";
+        else if (filepath.find(".png") != std::string::npos) ct = "image/png";
+
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", ct.c_str(), size);
+        mg_write(conn, buffer.data(), size);
+        return true;
+    }
+};
 // --- Main Server Setup ---
 
 int main() {
