@@ -28,6 +28,9 @@
 using json = nlohmann::json;
 
 static const char* PRODUCT_FILE = "products.json";
+static const char* USERS_FILE = "users.json";
+static const char* MESSAGES_FILE = "messages.json";
+static const char* UI_DIR = "supplierbuyerdesignmain";
 
 // --- Helper Functions ---
 
@@ -37,6 +40,27 @@ std::string get_current_log_time() {
     std::ostringstream oss;
     oss << std::put_time(now_tm, "%d/%b/%Y:%H:%M:%S %z");
     return oss.str();
+}
+
+// Map URL path to file system path
+std::string mapUrlToFilePath(const std::string& uri) {
+    if (uri.find("/supplierbuyer/") == 0) {
+        std::string suffix = uri.substr(15); // Remove "/supplierbuyer/"
+        if (suffix == "loginpage.html" || suffix == "auth/loginpage.html") {
+            return std::string(UI_DIR) + "/auth/loginpage.html";
+        }
+        return std::string(UI_DIR) + "/" + suffix;
+    }
+    if (uri.find("/uploads/") == 0) {
+        return "uploads/" + uri.substr(9);
+    }
+    return "";
+}
+
+// Check if file exists
+bool fileExists(const std::string& path) {
+    std::ifstream f(path);
+    return f.good();
 }
 
 // --- Handler Classes ---
@@ -288,7 +312,6 @@ public:
 
 class AdminProfileHandler : public CivetHandler {
 private:
-    const std::string USER_FILE = "users.json";
     std::string getField(const std::string& body, const std::string& key) {
         std::string searchKey = "name=\"" + key + "\"";
         size_t pos = body.find(searchKey);
@@ -300,7 +323,7 @@ private:
     }
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        std::ifstream in(USER_FILE);
+        std::ifstream in(USERS_FILE);
         json users = json::array();
         if (in.is_open()) in >> users;
         json currentUser = (!users.empty()) ? users[0] : json::object({{"username", "Admin"}, {"description", ""}, {"photo", ""}});
@@ -316,7 +339,7 @@ public:
         mg_read(conn, buffer.data(), ri->content_length);
         std::string body(buffer.begin(), buffer.end());
 
-        std::ifstream in(USER_FILE);
+        std::ifstream in(USERS_FILE);
         json users = json::array();
         if (in.is_open()) in >> users;
         if (users.empty()) users.push_back(json::object());
@@ -339,7 +362,7 @@ public:
                 users[0]["photo"] = "/uploads/" + fileName;
             }
         }
-        std::ofstream out(USER_FILE);
+        std::ofstream out(USERS_FILE);
         out << users.dump(4);
         std::string resp = "{\"success\":true}";
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n%s", resp.c_str());
@@ -373,9 +396,13 @@ public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-        if (uri.find("/uploads/") == 0) uri = uri.substr(9);
+        std::string filepath = mapUrlToFilePath(uri);
 
-        std::string filepath = "uploads/" + uri;
+        if (filepath.empty()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
+
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
             mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
@@ -388,8 +415,8 @@ public:
         file.read(buffer.data(), size);
 
         std::string content_type = "application/octet-stream";
-        if (uri.find(".jpg") != std::string::npos || uri.find(".jpeg") != std::string::npos) content_type = "image/jpeg";
-        else if (uri.find(".png") != std::string::npos) content_type = "image/png";
+        if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) content_type = "image/jpeg";
+        else if (filepath.find(".png") != std::string::npos) content_type = "image/png";
 
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", content_type.c_str(), size);
         mg_write(conn, buffer.data(), size);
@@ -402,14 +429,14 @@ public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
-        std::string filepath_suffix = uri;
-        if (uri.find("/supplierbuyer/") == 0) filepath_suffix = uri.substr(15);
+        std::string filepath = mapUrlToFilePath(uri);
 
-        std::string full_path = (filepath_suffix == "loginpage.html") 
-                              ? "supplierbuyer/auth/loginpage.html" 
-                              : "supplierbuyer/" + filepath_suffix;
+        if (filepath.empty()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
 
-        std::ifstream file(full_path, std::ios::binary | std::ios::ate);
+        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
             mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
             return true;
@@ -421,10 +448,11 @@ public:
         file.read(buffer.data(), size);
 
         std::string content_type = "text/plain";
-        if (full_path.find(".css") != std::string::npos) content_type = "text/css";
-        else if (full_path.find(".html") != std::string::npos) content_type = "text/html";
-        else if (full_path.find(".js") != std::string::npos) content_type = "application/javascript";
-        else if (full_path.find(".jpg") != std::string::npos) content_type = "image/jpeg";
+        if (filepath.find(".css") != std::string::npos) content_type = "text/css";
+        else if (filepath.find(".html") != std::string::npos) content_type = "text/html";
+        else if (filepath.find(".js") != std::string::npos) content_type = "application/javascript";
+        else if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) content_type = "image/jpeg";
+        else if (filepath.find(".png") != std::string::npos) content_type = "image/png";
 
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", content_type.c_str(), size);
         mg_write(conn, buffer.data(), size);
@@ -553,7 +581,7 @@ private:
     }
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        std::ifstream in("messages.json");
+        std::ifstream in(MESSAGES_FILE);
         json messages = json::array();
         if (in.is_open()) in >> messages;
         std::string body = messages.dump();
@@ -576,11 +604,11 @@ public:
         };
 
         json messages = json::array();
-        std::ifstream in("messages.json");
+        std::ifstream in(MESSAGES_FILE);
         if (in.is_open()) in >> messages;
         messages.push_back(newMessage);
 
-        std::ofstream out("messages.json");
+        std::ofstream out(MESSAGES_FILE);
         out << messages.dump(4);
         std::string response = "{\"success\":true}";
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
@@ -645,7 +673,6 @@ int main() {
     server.addHandler("/uploads/", uploadsHandler);
 
     std::cout << "Server started on port 8080!\n";
-    std::cout << "Access via Tor: http://bdvzrechjf2pkx6pemuwcc4htizigz3iosmu2g75ti76awgwg26nwwyd.onion/\n";
 
     while (true) {
         // FIXED: Replaced platform-specific sleep(1) with standard C++11
