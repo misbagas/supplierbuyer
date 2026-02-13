@@ -640,11 +640,16 @@ public:
 
 int main() {
     // Try to change to the working directory
+    int chdir_result = 0;
     #ifdef _WIN32
-        _chdir("/root/supplierbuyer");
+        chdir_result = _chdir("/root/supplierbuyer");
     #else
-        chdir("/root/supplierbuyer");
+        chdir_result = chdir("/root/supplierbuyer");
     #endif
+
+    if (chdir_result != 0) {
+        std::cerr << "Warning: Could not change to /root/supplierbuyer directory. Continuing with current directory." << std::endl;
+    }
 
     const char* options[] = {
         "document_root", ".",
@@ -659,7 +664,7 @@ int main() {
         server = new CivetServer(options);
     } catch (const std::exception& e) {
         std::cerr << "Failed to start server: " << e.what() << std::endl;
-        std::cerr << "Make sure /root/supplierbuyer exists and port 8080 is available." << std::endl;
+        std::cerr << "Make sure the directory exists and port 8080 is available." << std::endl;
         return 1;
     }
 
