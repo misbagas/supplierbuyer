@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - SupplierBuyer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .nav-link:hover { color: #00a6e1; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-800">SupplierBuyer</span>
+                    <div class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="/supplierbuyer/supplierbuyerhome.html" class="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-blue-500 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="/supplierbuyer/supplierbuyerdash.html" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium nav-link">
+                            Dashboard
+                        </a>
+                        <a href="/supplierbuyer/profileadmin.html" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium nav-link">
+                            My Profile
+                        </a>
+                        <a href="/supplierbuyer/messagecollection.html" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium nav-link">
+                            Messages
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center flex-1 justify-center px-6">
+                    <div class="relative w-full max-w-lg">
+                        <input type="text" id="searchInput" placeholder="Search by name or description..." 
+                               class="w-full bg-gray-100 border border-transparent focus:bg-white focus:border-blue-500 rounded-lg py-2 px-4 pl-10 transition-all duration-200 outline-none shadow-sm">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <button onclick="window.location.href='/logout'" class="ml-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none shadow-sm">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-800 p-4">All Available Products</h1>
+            <p class="text-gray-600">Find the best deals from our global suppliers</p>
+        </header>
+
+        <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div id="loading" class="text-center col-span-full text-gray-500 text-lg py-20">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-2"></div>
+                <p>Loading products...</p>
+            </div>
+        </div>
+
+        <div id="error-message" class="hidden text-center col-span-full text-red-500 text-lg mt-8 bg-red-50 p-6 rounded-lg border border-red-200">
+            Failed to load products. Please make sure the backend server is running.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productsContainer = document.getElementById('products-container');
+            const loadingMessage = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            const searchInput = document.getElementById('searchInput');
+
+            let allProducts = []; // Local cache to store original data
+
+            const fetchProducts = async () => {
+                try {
+                    const response = await fetch('/api/products');
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    allProducts = await response.json();
+                    loadingMessage.style.display = 'none';
+                    
+                    renderProducts(allProducts);
+                } catch (error) {
+                    console.error('Error fetching products:', error);
+                    loadingMessage.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                }
+            };
+
+            // 🔹 REUSABLE RENDERING FUNCTION
+            const renderProducts = (productsToDisplay) => {
+                productsContainer.innerHTML = ''; // Clear existing
+
+                if (productsToDisplay.length === 0) {
+                    productsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-20">
+                            <p class="text-gray-500 text-xl font-medium">No products match your search.</p>
+                            <button onclick="resetSearch()" class="mt-4 text-blue-600 underline">Clear search</button>
+                        </div>`;
+                    return;
+                }
+
+                productsToDisplay.forEach((product, index) => {
+                    // Find actual index in original array (for the detail link)
+                    const originalIndex = allProducts.findIndex(p => p.name === product.name);
+                    
+                    const productLink = document.createElement('a');
+                    productLink.href = `/supplierbuyer/detailproduct_supplierbuyer.html?id=${originalIndex}`;
+                    productLink.classList.add('block', 'h-full');
+                    productLink.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform transform hover:scale-105 cursor-pointer h-full border border-gray-100 flex flex-col">
+                            <img src="${product.image}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/4b5563?text=No+Image';" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-2 truncate">${product.name}</h2>
+                                <p class="text-gray-600 mb-4 h-12 overflow-hidden text-sm line-clamp-2">${product.description || 'No description provided.'}</p>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <span class="text-2xl font-bold text-blue-600">$${parseFloat(product.price).toFixed(2)}</span>
+                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500 font-medium">View Detail</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    productsContainer.appendChild(productLink);
+                });
+            };
+
+            // 🔹 SEARCH INPUT LISTENER
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = allProducts.filter(p => 
+                    p.name.toLowerCase().includes(term) || 
+                    (p.description && p.description.toLowerCase().includes(term))
+                );
+                renderProducts(filtered);
+            });
+
+            // Global reset for the "Clear search" button
+            window.resetSearch = () => {
+                searchInput.value = '';
+                renderProducts(allProducts);
+            };
+
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>

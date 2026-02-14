@@ -9,11 +9,11 @@
 #include <ctime>
 #include <thread>
 #include <chrono>
+#include <cstdlib>
 
 // System Headers
 #ifdef _WIN32
   #include <windows.h>
-  #include <direct.h>
 #else
   #include <unistd.h>
 #endif
@@ -23,11 +23,12 @@
 
 using json = nlohmann::json;
 
-static const char* PRODUCT_FILE = "products.json";
-static const char* USERS_FILE = "users.json";
-static const char* MESSAGES_FILE = "messages.json";
-static const char* UI_DIR = "supplierbuyerdesignmain";
-static const char* UPLOADS_DIR = "uploads";
+static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
+static const char* USERS_FILE = "/root/supplierbuyer/users.json";
+static const char* MESSAGES_FILE = "/root/supplierbuyer/messages.json";
+static const char* UI_DIR = "/root/supplierbuyer/supplierbuyerdesignmain";
+static const char* UPLOADS_DIR = "/root/supplierbuyer/uploads";
+static const char* USERS_TXT = "/root/supplierbuyer/users.txt";
 // --- Helper Functions ---
 
 std::string get_current_log_time() {
@@ -39,15 +40,39 @@ std::string get_current_log_time() {
 }
 
 std::string mapUrlToFilePath(const std::string& uri) {
-    // Handle the specific subfolder mapping
+    std::cerr << "[mapUrlToFilePath] Input: " << uri << std::endl;
+    
+    // Handle /supplierbuyer/* - all UI files
     if (uri.find("/supplierbuyer/") == 0) {
-        std::string suffix = uri.substr(15);
-        if (suffix.empty() || suffix == "/") return std::string(UI_DIR) + "/supplierbuyer.html";
-        return std::string(UI_DIR) + "/" + suffix;
+        std::string suffix = uri.substr(15);  // Remove "/supplierbuyer/"
+        
+        if (suffix.empty() || suffix == "/") {
+            std::string result = std::string(UI_DIR) + "/supplierbuyer.html";
+            std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
+            return result;
+        }
+        
+        // For any file under /supplierbuyer/, map to UI_DIR
+        std::string result = std::string(UI_DIR) + "/" + suffix;
+        std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
+        return result;
     }
+    
+    // Handle /uploads/*
     if (uri.find("/uploads/") == 0) {
-        return std::string(UPLOADS_DIR) + "/" + uri.substr(9);
+        std::string result = std::string(UPLOADS_DIR) + "/" + uri.substr(9);
+        std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
+        return result;
     }
+    
+    // Handle /admin/*
+    if (uri.find("/admin/") == 0) {
+        std::string result = "admin/" + uri.substr(7);
+        std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
+        return result;
+    }
+    
+    std::cerr << "[mapUrlToFilePath] No match, returning empty" << std::endl;
     return "";
 }
 
@@ -55,6 +80,18 @@ std::string mapUrlToFilePath(const std::string& uri) {
 bool fileExists(const std::string& path) {
     std::ifstream f(path);
     return f.good();
+}
+
+std::string getContentType(const std::string& filepath) {
+    if (filepath.find(".html") != std::string::npos) return "text/html; charset=utf-8";
+    if (filepath.find(".css") != std::string::npos) return "text/css";
+    if (filepath.find(".js") != std::string::npos) return "application/javascript";
+    if (filepath.find(".json") != std::string::npos) return "application/json";
+    if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) return "image/jpeg";
+    if (filepath.find(".png") != std::string::npos) return "image/png";
+    if (filepath.find(".gif") != std::string::npos) return "image/gif";
+    if (filepath.find(".svg") != std::string::npos) return "image/svg+xml";
+    return "application/octet-stream";
 }
 
 // --- Handler Classes ---
@@ -72,7 +109,11 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        // Redirect only the bare root to the main entry point
+        const struct mg_request_info *ri = mg_get_request_info(conn);
+        std::string uri = ri->request_uri;
+        std::cerr << "[RootHandler] GET " << uri << " - Redirecting to /supplierbuyer/supplierbuyer.html" << std::endl;
+        
+        // Redirect to the main page
         mg_printf(conn, "HTTP/1.1 302 Found\r\n"
                         "Location: /supplierbuyer/supplierbuyer.html\r\n"
                         "Content-Length: 0\r\n\r\n");
@@ -182,7 +223,25 @@ public:
         std::ofstream out(PRODUCT_FILE);
         out << products.dump(2);
 
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
+        std::cerr << "[UploadHandler] Product uploaded, serving dashboard directly" << std::endl;
+        
+        // Serve the dashboard directly instead of redirecting
+        std::string filepath = std::string(UI_DIR) + "/supplierbuyerdash.html";
+        std::ifstream dashfile(filepath, std::ios::binary | std::ios::ate);
+        
+        if (!dashfile.is_open()) {
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
+            return true;
+        }
+        
+        std::streamsize size = dashfile.tellg();
+        dashfile.seekg(0, std::ios::beg);
+        std::vector<char> buffer(size);
+        dashfile.read(buffer.data(), size);
+        dashfile.close();
+        
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %zu\r\n\r\n", size);
+        mg_write(conn, buffer.data(), size);
         return true;
     }
 };
@@ -387,6 +446,8 @@ public:
         std::string uri = ri->request_uri;
         std::string filepath = mapUrlToFilePath(uri);
 
+        std::cerr << "[UploadsHandler] URI: " << uri << " -> File: " << filepath << std::endl;
+
         if (filepath.empty()) {
             mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
             return true;
@@ -394,6 +455,7 @@ public:
 
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
+            std::cerr << "[UploadsHandler] File not found: " << filepath << std::endl;
             mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
             return true;
         }
@@ -402,10 +464,9 @@ public:
         file.seekg(0, std::ios::beg);
         std::vector<char> buffer(size);
         file.read(buffer.data(), size);
+        file.close();
 
-        std::string content_type = "application/octet-stream";
-        if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) content_type = "image/jpeg";
-        else if (filepath.find(".png") != std::string::npos) content_type = "image/png";
+        std::string content_type = getContentType(filepath);
 
         mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", content_type.c_str(), size);
         mg_write(conn, buffer.data(), size);
@@ -413,21 +474,29 @@ public:
     }
 };
 
-class CSSHandler : public CivetHandler {
+class StaticFileHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
         const struct mg_request_info *ri = mg_get_request_info(conn);
         std::string uri = ri->request_uri;
+        
+        std::cerr << "\n==== [StaticFileHandler] ====" << std::endl;
+        std::cerr << "Request URI: " << uri << std::endl;
+        
         std::string filepath = mapUrlToFilePath(uri);
 
         if (filepath.empty()) {
-            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            std::cerr << "ERROR: Filepath is empty!" << std::endl;
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 9\r\n\r\nNot Found");
             return true;
         }
 
+        std::cerr << "Opening file: " << filepath << std::endl;
+
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file.is_open()) {
-            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
+            std::cerr << "ERROR: Cannot open file: " << filepath << std::endl;
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 9\r\n\r\nNot Found");
             return true;
         }
 
@@ -435,15 +504,16 @@ public:
         file.seekg(0, std::ios::beg);
         std::vector<char> buffer(size);
         file.read(buffer.data(), size);
+        file.close();
 
-        std::string content_type = "text/plain";
-        if (filepath.find(".css") != std::string::npos) content_type = "text/css";
-        else if (filepath.find(".html") != std::string::npos) content_type = "text/html";
-        else if (filepath.find(".js") != std::string::npos) content_type = "application/javascript";
-        else if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) content_type = "image/jpeg";
-        else if (filepath.find(".png") != std::string::npos) content_type = "image/png";
+        std::string content_type = getContentType(filepath);
+        
+        std::cerr << "SUCCESS: Serving " << size << " bytes" << std::endl;
+        std::cerr << "Content-Type: " << content_type << std::endl;
+        std::cerr << "============================\n" << std::endl;
 
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", content_type.c_str(), size);
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", 
+                  content_type.c_str(), size);
         mg_write(conn, buffer.data(), size);
         return true;
     }
@@ -463,7 +533,7 @@ public:
         mg_get_var(post_data, dlen, "security_question", question, sizeof(question));
         mg_get_var(post_data, dlen, "security_answer", answer, sizeof(answer));
 
-        std::ofstream userFile("users.txt", std::ios::app);
+        std::ofstream userFile(USERS_TXT, std::ios::app);
         if (userFile.is_open()) {
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
@@ -488,7 +558,7 @@ public:
         mg_get_var(post_data, dlen, "username", input_user, sizeof(input_user));
         mg_get_var(post_data, dlen, "password", input_pass, sizeof(input_pass));
 
-        std::ifstream userFile("users.txt");
+        std::ifstream userFile(USERS_TXT);
         std::string line;
         bool authenticated = false;
         if (userFile.is_open()) {
@@ -501,7 +571,7 @@ public:
             }
         }
 
-        if (authenticated) mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
+        if (authenticated) mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nSet-Cookie: session=active; Path=/\r\nContent-Length: 0\r\n\r\n");
         else mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
         return true;
     }
@@ -510,10 +580,24 @@ public:
 class LogoutHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        // Point to the static html page, not a route that triggers another redirect
-        mg_printf(conn, "HTTP/1.1 302 Found\r\n"
-                        "Location: /supplierbuyer/supplierbuyer.html\r\n"
-                        "Content-Length: 0\r\n\r\n");
+        std::cerr << "[LogoutHandler] Logout requested" << std::endl;
+        // Serve the landing page directly instead of redirecting
+        std::string filepath = std::string(UI_DIR) + "/supplierbuyer.html";
+        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+        
+        if (!file.is_open()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+            return true;
+        }
+        
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+        file.close();
+        
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: session=; Max-Age=0\r\nContent-Length: %zu\r\n\r\n", size);
+        mg_write(conn, buffer.data(), size);
         return true;
     }
 };
@@ -532,7 +616,7 @@ public:
         mg_get_var(post_data, dlen, "security_answer", a_input, sizeof(a_input));
         mg_get_var(post_data, dlen, "new_password", new_pass, sizeof(new_pass));
 
-        std::ifstream inFile("users.txt");
+        std::ifstream inFile(USERS_TXT);
         std::vector<std::string> lines;
         std::string line;
         bool success = false;
@@ -550,7 +634,7 @@ public:
         }
 
         if (success) {
-            std::ofstream outFile("users.txt");
+            std::ofstream outFile(USERS_TXT);
             for (const auto& l : lines) outFile << l << "\n";
             mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\n\r\n");
         } else {
@@ -607,54 +691,21 @@ public:
         return true;
     }
 };
-class StaticFileHandler : public CivetHandler {
-public:
-    bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        const struct mg_request_info *ri = mg_get_request_info(conn);
-        std::string filepath = mapUrlToFilePath(ri->request_uri);
 
-        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-        if (!file.is_open()) {
-            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n");
-            return true;
-        }
-
-        std::streamsize size = file.tellg();
-        file.seekg(0, std::ios::beg);
-        std::vector<char> buffer(size);
-        file.read(buffer.data(), size);
-
-        std::string ct = "text/plain";
-        if (filepath.find(".html") != std::string::npos) ct = "text/html";
-        else if (filepath.find(".css") != std::string::npos) ct = "text/css";
-        else if (filepath.find(".js") != std::string::npos) ct = "application/javascript";
-        else if (filepath.find(".jpg") != std::string::npos || filepath.find(".jpeg") != std::string::npos) ct = "image/jpeg";
-        else if (filepath.find(".png") != std::string::npos) ct = "image/png";
-
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", ct.c_str(), size);
-        mg_write(conn, buffer.data(), size);
-        return true;
-    }
-};
 // --- Main Server Setup ---
 
 int main() {
-    // Try to change to the working directory
-    int chdir_result = 0;
+    // Create necessary directories
     #ifdef _WIN32
-        chdir_result = _chdir("/root/supplierbuyer");
+        system("if not exist \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\" mkdir \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\"");
     #else
-        chdir_result = chdir("/root/supplierbuyer");
+        system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
     #endif
-
-    if (chdir_result != 0) {
-        std::cerr << "Warning: Could not change to /root/supplierbuyer directory. Continuing with current directory." << std::endl;
-    }
 
     const char* options[] = {
         "document_root", ".",
         "listening_ports", "8080",
-        "error_log_file", "error.log",
+        "error_log_file", "/root/supplierbuyer/error.log",
         "enable_directory_listing", "no",
         nullptr
     };
@@ -664,7 +715,7 @@ int main() {
         server = new CivetServer(options);
     } catch (const std::exception& e) {
         std::cerr << "Failed to start server: " << e.what() << std::endl;
-        std::cerr << "Make sure the directory exists and port 8080 is available." << std::endl;
+        std::cerr << "Make sure port 8080 is available." << std::endl;
         return 1;
     }
 
@@ -680,7 +731,7 @@ int main() {
     UploadHandler uploadHandler;
     UpdateProductsHandler updateHandler;
     UploadsHandler uploadsHandler;
-    CSSHandler cssHandler;
+    StaticFileHandler staticHandler;
     LoginHandler loginHandler;
     RegisterHandler registerHandler;
     LogoutHandler logoutHandler;
@@ -712,12 +763,25 @@ int main() {
     server->addHandler("/supplierbuyer/logout", logoutHandler);
     server->addHandler("/reset_password", resetHandler);
     
-    // 4. Static Files
-    server->addHandler("/supplierbuyer/", cssHandler);
-    server->addHandler("/uploads/", uploadsHandler);
+    // 4. Static Files (catch-all at the end)
+    server->addHandler("/supplierbuyer/", staticHandler);
+    server->addHandler("/uploads/", staticHandler);
+    server->addHandler("/admin/", staticHandler);
 
-    std::cout << "Server started on port 8080!\n";
-    std::cout << "Access: http://localhost:8080/supplierbuyer/supplierbuyer.html\n";
+    std::cout << "\n=================================\n";
+    std::cout << "Server started successfully!\n";
+    std::cout << "=================================\n";
+    std::cout << "\nDIRECTORY CHECK:\n";
+    std::cout << "  /root/supplierbuyer/supplierbuyerdesignmain: " << (fileExists("/root/supplierbuyer/supplierbuyerdesignmain") ? "FOUND" : "NOT FOUND") << "\n";
+    std::cout << "  /root/supplierbuyer/uploads: " << (fileExists("/root/supplierbuyer/uploads") ? "FOUND" : "CREATING") << "\n";
+    std::cout << "\nACCESS URLS:\n";
+    std::cout << "  http://localhost:8080/\n";
+    std::cout << "  http://localhost:8080/supplierbuyer/supplierbuyer.html\n";
+    std::cout << "\nIMPORTANT:\n";
+    std::cout << "  All files must be in: /root/supplierbuyer/\n";
+    std::cout << "  Server can run from any directory\n";
+    std::cout << "\nPress Ctrl+C to stop.\n";
+    std::cout << "=================================\n\n";
 
     while (true) {
         // FIXED: Replaced platform-specific sleep(1) with standard C++11
