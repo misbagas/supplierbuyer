@@ -699,7 +699,7 @@ int main() {
     (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
 
     const char* options[] = {
-        "document_root", "/root/supplierbuyer",
+        "document_root", ".",
         "listening_ports", "8080",
         "error_log_file", "/root/supplierbuyer/error.log",
         "enable_directory_listing", "no",
