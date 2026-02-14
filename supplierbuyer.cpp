@@ -697,9 +697,9 @@ public:
 int main() {
     // Create necessary directories
     #ifdef _WIN32
-        system("if not exist \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\" mkdir \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\"");
+        (void)system("if not exist \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\" mkdir \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\"");
     #else
-        system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
+        (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
     #endif
 
     const char* options[] = {
