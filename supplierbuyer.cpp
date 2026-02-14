@@ -39,20 +39,16 @@ std::string mapUrlToFilePath(const std::string& uri) {
     std::cerr << "[mapUrlToFilePath] Input: " << uri << std::endl;
     
     // Handle /supplierbuyer/* - all UI files
-    if (uri.find("/supplierbuyer/") == 0) {
-        std::string suffix = uri.substr(15);  // Remove "/supplierbuyer/"
-        
-        if (suffix.empty() || suffix == "/") {
-            std::string result = std::string(UI_DIR) + "/supplierbuyer.html";
-            std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
-            return result;
-        }
-        
-        // For any file under /supplierbuyer/, map to UI_DIR
-        std::string result = std::string(UI_DIR) + "/" + suffix;
-        std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
-        return result;
+if (uri.find("/supplierbuyer/") == 0) {
+    std::string suffix = uri.substr(15); 
+    
+    // If user hits "/supplierbuyer/" exactly
+    if (suffix.empty() || suffix == "/") {
+        return std::string(UI_DIR) + "/supplierbuyer.html";
     }
+    
+    return std::string(UI_DIR) + "/" + suffix;
+}
     
     // Handle /uploads/*
     if (uri.find("/uploads/") == 0) {
@@ -105,18 +101,25 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        const struct mg_request_info *ri = mg_get_request_info(conn);
-        std::string uri = ri->request_uri;
-        std::cerr << "[RootHandler] GET " << uri << " - Redirecting to /supplierbuyer/supplierbuyer.html" << std::endl;
+        // Instead of 302 redirect, just serve the main file immediately
+        // to stop the browser from jumping between URLs.
+        std::string filepath = std::string(UI_DIR) + "/supplierbuyer.html";
+        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         
-        // Redirect to the main page with proper headers for proxy/Tor compatibility
-        mg_printf(conn, "HTTP/1.1 302 Found\r\n"
-                        "Location: /supplierbuyer/supplierbuyer.html\r\n"
-                        "Access-Control-Allow-Origin: *\r\n"
-                        "Cache-Control: no-cache, no-store, must-revalidate\r\n"
-                        "Pragma: no-cache\r\n"
-                        "Expires: 0\r\n"
-                        "Content-Length: 0\r\n\r\n");
+        if (!file.is_open()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\n\r\nFile Not Found");
+            return true;
+        }
+
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+
+        mg_printf(conn, "HTTP/1.1 200 OK\r\n"
+                        "Content-Type: text/html\r\n"
+                        "Content-Length: %zu\r\n\r\n", (size_t)size);
+        mg_write(conn, buffer.data(), size);
         return true;
     }
 };
