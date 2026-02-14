@@ -697,7 +697,7 @@ public:
 int main() {
 
     const char* options[] = {
-        "document_root", "./",
+        "document_root", ".",
         "listening_ports", "8080",
         "error_log_file", "/root/supplierbuyer/error.log",
         "enable_directory_listing", "no",
