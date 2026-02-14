@@ -12,11 +12,7 @@
 #include <cstdlib>
 
 // System Headers
-#ifdef _WIN32
-  #include <windows.h>
-#else
-  #include <unistd.h>
-#endif
+#include <unistd.h>
 
 #include "CivetServer.h"
 #include "json.hpp"
@@ -26,7 +22,7 @@ using json = nlohmann::json;
 static const char* PRODUCT_FILE = "/root/supplierbuyer/products.json";
 static const char* USERS_FILE = "/root/supplierbuyer/users.json";
 static const char* MESSAGES_FILE = "/root/supplierbuyer/messages.json";
-static const char* UI_DIR = "/root/supplierbuyer/supplierbuyerdesignmain";
+static const char* UI_DIR = "/root/supplierbuyer/supplierbuyer";
 static const char* UPLOADS_DIR = "/root/supplierbuyer/uploads";
 static const char* USERS_TXT = "/root/supplierbuyer/users.txt";
 // --- Helper Functions ---
@@ -67,7 +63,7 @@ std::string mapUrlToFilePath(const std::string& uri) {
     
     // Handle /admin/*
     if (uri.find("/admin/") == 0) {
-        std::string result = "admin/" + uri.substr(7);
+        std::string result = "/root/supplierbuyer/admin/" + uri.substr(7);
         std::cerr << "[mapUrlToFilePath] Result: " << result << std::endl;
         return result;
     }
@@ -113,9 +109,13 @@ public:
         std::string uri = ri->request_uri;
         std::cerr << "[RootHandler] GET " << uri << " - Redirecting to /supplierbuyer/supplierbuyer.html" << std::endl;
         
-        // Redirect to the main page
+        // Redirect to the main page with proper headers for proxy/Tor compatibility
         mg_printf(conn, "HTTP/1.1 302 Found\r\n"
                         "Location: /supplierbuyer/supplierbuyer.html\r\n"
+                        "Access-Control-Allow-Origin: *\r\n"
+                        "Cache-Control: no-cache, no-store, must-revalidate\r\n"
+                        "Pragma: no-cache\r\n"
+                        "Expires: 0\r\n"
                         "Content-Length: 0\r\n\r\n");
         return true;
     }
@@ -230,7 +230,7 @@ public:
         std::ifstream dashfile(filepath, std::ios::binary | std::ios::ate);
         
         if (!dashfile.is_open()) {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nContent-Length: 0\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
             return true;
         }
         
@@ -512,7 +512,7 @@ public:
         std::cerr << "Content-Type: " << content_type << std::endl;
         std::cerr << "============================\n" << std::endl;
 
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %zu\r\n\r\n", 
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: public, max-age=3600\r\nContent-Length: %zu\r\n\r\n", 
                   content_type.c_str(), size);
         mg_write(conn, buffer.data(), size);
         return true;
@@ -538,7 +538,7 @@ public:
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
         }
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\nContent-Length: 0\r\n\r\n");
+        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
         return true;
     }
 };
@@ -571,8 +571,8 @@ public:
             }
         }
 
-        if (authenticated) mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nSet-Cookie: session=active; Path=/\r\nContent-Length: 0\r\n\r\n");
-        else mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\nContent-Length: 0\r\n\r\n");
+        if (authenticated) mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nSet-Cookie: session=active; Path=/; SameSite=Lax\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+        else mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
         return true;
     }
 };
@@ -596,7 +596,7 @@ public:
         file.read(buffer.data(), size);
         file.close();
         
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: session=; Max-Age=0\r\nContent-Length: %zu\r\n\r\n", size);
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: session=; Max-Age=0; Path=/; SameSite=Lax\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
         mg_write(conn, buffer.data(), size);
         return true;
     }
@@ -636,9 +636,9 @@ public:
         if (success) {
             std::ofstream outFile(USERS_TXT);
             for (const auto& l : lines) outFile << l << "\n";
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
         } else {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/resetpassword.html?error=mismatch\r\n\r\n");
+            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/resetpassword.html?error=mismatch\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
         }
         return true;
     }
@@ -696,14 +696,10 @@ public:
 
 int main() {
     // Create necessary directories
-    #ifdef _WIN32
-        (void)system("if not exist \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\" mkdir \"C:\\Users\\Guntur\\OneDrive\\Desktop\\supplierbuyer\\uploads\"");
-    #else
-        (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
-    #endif
+    (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
 
     const char* options[] = {
-        "document_root", ".",
+        "document_root", "/root/supplierbuyer",
         "listening_ports", "8080",
         "error_log_file", "/root/supplierbuyer/error.log",
         "enable_directory_listing", "no",
@@ -767,12 +763,17 @@ int main() {
     server->addHandler("/supplierbuyer/", staticHandler);
     server->addHandler("/uploads/", staticHandler);
     server->addHandler("/admin/", staticHandler);
+    
+    // Also add handler for root admin requests
+    server->addHandler("/adminpage.html", staticHandler);
+    server->addHandler("/uploadpage.html", staticHandler);
 
     std::cout << "\n=================================\n";
     std::cout << "Server started successfully!\n";
     std::cout << "=================================\n";
     std::cout << "\nDIRECTORY CHECK:\n";
-    std::cout << "  /root/supplierbuyer/supplierbuyerdesignmain: " << (fileExists("/root/supplierbuyer/supplierbuyerdesignmain") ? "FOUND" : "NOT FOUND") << "\n";
+    std::cout << "  /root/supplierbuyer/supplierbuyer: " << (fileExists("/root/supplierbuyer/supplierbuyer") ? "FOUND" : "NOT FOUND") << "\n";
+    std::cout << "  /root/supplierbuyer/admin: " << (fileExists("/root/supplierbuyer/admin") ? "FOUND" : "NOT FOUND") << "\n";
     std::cout << "  /root/supplierbuyer/uploads: " << (fileExists("/root/supplierbuyer/uploads") ? "FOUND" : "CREATING") << "\n";
     std::cout << "\nACCESS URLS:\n";
     std::cout << "  http://localhost:8080/\n";
