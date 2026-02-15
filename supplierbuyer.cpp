@@ -101,8 +101,7 @@ public:
 class RootHandler : public CivetHandler {
 public:
     bool handleGet(CivetServer*, struct mg_connection* conn) override {
-        // Instead of 302 redirect, just serve the main file immediately
-        // to stop the browser from jumping between URLs.
+        // Serve root with proper cache control headers for Tor/proxy compatibility
         std::string filepath = std::string(UI_DIR) + "/supplierbuyer.html";
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         
@@ -117,7 +116,11 @@ public:
         file.read(buffer.data(), size);
 
         mg_printf(conn, "HTTP/1.1 200 OK\r\n"
-                        "Content-Type: text/html\r\n"
+                        "Content-Type: text/html; charset=utf-8\r\n"
+                        "Access-Control-Allow-Origin: *\r\n"
+                        "Cache-Control: no-cache, no-store, must-revalidate\r\n"
+                        "Pragma: no-cache\r\n"
+                        "Expires: 0\r\n"
                         "Content-Length: %zu\r\n\r\n", (size_t)size);
         mg_write(conn, buffer.data(), size);
         return true;
@@ -698,9 +701,11 @@ public:
 // --- Main Server Setup ---
 
 int main() {
+    // Create necessary directories
+    (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
 
     const char* options[] = {
-        "document_root", ".",
+        "document_root", "/root/supplierbuyer",
         "listening_ports", "8080",
         "error_log_file", "/root/supplierbuyer/error.log",
         "enable_directory_listing", "no",
