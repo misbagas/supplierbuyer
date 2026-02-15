@@ -702,7 +702,8 @@ public:
 
 int main() {
     // Create necessary directories
-    (void)system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
+    int ret = system("mkdir -p /root/supplierbuyer/uploads 2>/dev/null");
+    (void)ret;  // Suppress unused variable warning if mkdir succeeds
 
     const char* options[] = {
         "document_root", "/root/supplierbuyer",
