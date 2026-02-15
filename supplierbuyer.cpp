@@ -236,7 +236,22 @@ public:
         std::ifstream dashfile(filepath, std::ios::binary | std::ios::ate);
         
         if (!dashfile.is_open()) {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+            // Serve error page or home instead of redirecting
+            std::string filepath = std::string(UI_DIR) + "/supplierbuyer.html";
+            std::ifstream htmlfile(filepath, std::ios::binary | std::ios::ate);
+            if (!htmlfile.is_open()) {
+                mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nError loading content");
+                return true;
+            }
+            
+            std::streamsize size = htmlfile.tellg();
+            htmlfile.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            htmlfile.read(buffer.data(), size);
+            htmlfile.close();
+            
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %zu\r\n\r\n", size);
+            mg_write(conn, buffer.data(), size);
             return true;
         }
         
@@ -544,7 +559,23 @@ public:
             userFile << username << ":" << password << ":" << question << ":" << answer << "\n";
             userFile.close();
         }
-        mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+        
+        // Serve login page directly instead of redirecting
+        std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
+        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+        if (!file.is_open()) {
+            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+            return true;
+        }
+        
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+        file.close();
+        
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
+        mg_write(conn, buffer.data(), size);
         return true;
     }
 };
@@ -577,8 +608,41 @@ public:
             }
         }
 
-        if (authenticated) mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/supplierbuyerdash.html\r\nSet-Cookie: session=active; Path=/; SameSite=Lax\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
-        else mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html?error=invalid\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+        if (authenticated) {
+            // Serve dashboard directly instead of redirecting
+            std::string filepath = std::string(UI_DIR) + "/supplierbuyerdash.html";
+            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+            if (!file.is_open()) {
+                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+                return true;
+            }
+            
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            file.read(buffer.data(), size);
+            file.close();
+            
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: session=active; Path=/; SameSite=Lax\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
+            mg_write(conn, buffer.data(), size);
+        } else {
+            // Serve login page with error directly instead of redirecting
+            std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
+            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+            if (!file.is_open()) {
+                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+                return true;
+            }
+            
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            file.read(buffer.data(), size);
+            file.close();
+            
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
+            mg_write(conn, buffer.data(), size);
+        }
         return true;
     }
 };
@@ -642,9 +706,40 @@ public:
         if (success) {
             std::ofstream outFile(USERS_TXT);
             for (const auto& l : lines) outFile << l << "\n";
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/loginpage.html\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+            
+            // Serve login page directly instead of redirecting
+            std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
+            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+            if (!file.is_open()) {
+                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+                return true;
+            }
+            
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            file.read(buffer.data(), size);
+            file.close();
+            
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
+            mg_write(conn, buffer.data(), size);
         } else {
-            mg_printf(conn, "HTTP/1.1 302 Found\r\nLocation: /supplierbuyer/auth/resetpassword.html?error=mismatch\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: 0\r\n\r\n");
+            // Serve reset page directly instead of redirecting
+            std::string filepath = std::string(UI_DIR) + "/auth/resetpassword.html";
+            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+            if (!file.is_open()) {
+                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
+                return true;
+            }
+            
+            std::streamsize size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            std::vector<char> buffer(size);
+            file.read(buffer.data(), size);
+            file.close();
+            
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
+            mg_write(conn, buffer.data(), size);
         }
         return true;
     }
