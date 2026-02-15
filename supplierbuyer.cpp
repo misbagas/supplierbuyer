@@ -229,40 +229,16 @@ public:
         std::ofstream out(PRODUCT_FILE);
         out << products.dump(2);
 
-        std::cerr << "[UploadHandler] Product uploaded, serving dashboard directly" << std::endl;
+        std::cerr << "[UploadHandler] Product uploaded successfully" << std::endl;
         
-        // Serve the dashboard directly instead of redirecting
-        std::string filepath = std::string(UI_DIR) + "/supplierbuyerdash.html";
-        std::ifstream dashfile(filepath, std::ios::binary | std::ios::ate);
+        json response = {
+            {"success", true},
+            {"message", "Product uploaded successfully"},
+            {"product", newProd}
+        };
         
-        if (!dashfile.is_open()) {
-            // Serve error page or home instead of redirecting
-            std::string filepath = std::string(UI_DIR) + "/supplierbuyer.html";
-            std::ifstream htmlfile(filepath, std::ios::binary | std::ios::ate);
-            if (!htmlfile.is_open()) {
-                mg_printf(conn, "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nError loading content");
-                return true;
-            }
-            
-            std::streamsize size = htmlfile.tellg();
-            htmlfile.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            htmlfile.read(buffer.data(), size);
-            htmlfile.close();
-            
-            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %zu\r\n\r\n", size);
-            mg_write(conn, buffer.data(), size);
-            return true;
-        }
-        
-        std::streamsize size = dashfile.tellg();
-        dashfile.seekg(0, std::ios::beg);
-        std::vector<char> buffer(size);
-        dashfile.read(buffer.data(), size);
-        dashfile.close();
-        
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %zu\r\n\r\n", size);
-        mg_write(conn, buffer.data(), size);
+        std::string body = response.dump();
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", body.size(), body.c_str());
         return true;
     }
 };
@@ -560,22 +536,8 @@ public:
             userFile.close();
         }
         
-        // Serve login page directly instead of redirecting
-        std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
-        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-        if (!file.is_open()) {
-            mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
-            return true;
-        }
-        
-        std::streamsize size = file.tellg();
-        file.seekg(0, std::ios::beg);
-        std::vector<char> buffer(size);
-        file.read(buffer.data(), size);
-        file.close();
-        
-        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
-        mg_write(conn, buffer.data(), size);
+        std::string response = "{\"success\":true,\"message\":\"Registration successful\"}";
+        mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
         return true;
     }
 };
@@ -609,39 +571,11 @@ public:
         }
 
         if (authenticated) {
-            // Serve dashboard directly instead of redirecting
-            std::string filepath = std::string(UI_DIR) + "/supplierbuyerdash.html";
-            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-            if (!file.is_open()) {
-                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
-                return true;
-            }
-            
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            file.read(buffer.data(), size);
-            file.close();
-            
-            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nSet-Cookie: session=active; Path=/; SameSite=Lax\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
-            mg_write(conn, buffer.data(), size);
+            std::string response = "{\"success\":true,\"message\":\"Login successful\"}";
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nSet-Cookie: session=active; Path=/; SameSite=Lax; HttpOnly\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
         } else {
-            // Serve login page with error directly instead of redirecting
-            std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
-            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-            if (!file.is_open()) {
-                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
-                return true;
-            }
-            
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            file.read(buffer.data(), size);
-            file.close();
-            
-            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
-            mg_write(conn, buffer.data(), size);
+            std::string response = "{\"success\":false,\"message\":\"Invalid credentials\"}";
+            mg_printf(conn, "HTTP/1.1 401 Unauthorized\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
         }
         return true;
     }
@@ -707,39 +641,11 @@ public:
             std::ofstream outFile(USERS_TXT);
             for (const auto& l : lines) outFile << l << "\n";
             
-            // Serve login page directly instead of redirecting
-            std::string filepath = std::string(UI_DIR) + "/auth/loginpage.html";
-            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-            if (!file.is_open()) {
-                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
-                return true;
-            }
-            
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            file.read(buffer.data(), size);
-            file.close();
-            
-            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
-            mg_write(conn, buffer.data(), size);
+            std::string response = "{\"success\":true,\"message\":\"Password reset successful\"}";
+            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
         } else {
-            // Serve reset page directly instead of redirecting
-            std::string filepath = std::string(UI_DIR) + "/auth/resetpassword.html";
-            std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-            if (!file.is_open()) {
-                mg_printf(conn, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found");
-                return true;
-            }
-            
-            std::streamsize size = file.tellg();
-            file.seekg(0, std::ios::beg);
-            std::vector<char> buffer(size);
-            file.read(buffer.data(), size);
-            file.close();
-            
-            mg_printf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nAccess-Control-Allow-Origin: *\r\nCache-Control: no-cache, no-store, must-revalidate\r\nContent-Length: %zu\r\n\r\n", size);
-            mg_write(conn, buffer.data(), size);
+            std::string response = "{\"success\":false,\"message\":\"Invalid credentials\"}";
+            mg_printf(conn, "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %zu\r\n\r\n%s", response.size(), response.c_str());
         }
         return true;
     }
